@@ -1,0 +1,34 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
+}
+
+.mark {
+  flex-shrink: 0;
+}
+
+.word {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.08em;
+  line-height: 1;
+}
+
+.alpha {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.32rem;
+  letter-spacing: -0.012em;
+}
+
+.os {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  transform: translateY(-0.06em);
+}

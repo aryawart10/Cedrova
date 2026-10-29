@@ -1,0 +1,16 @@
+.wrap {
+  position: relative;
+  width: 100%;
+}
+
+.ddLabel {
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  background: var(--surface);
+  padding-left: var(--s-2);
+}

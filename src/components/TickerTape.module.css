@@ -1,0 +1,61 @@
+.tape {
+  overflow: hidden;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface-sunk);
+  mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: scroll 64s linear infinite;
+}
+
+.tape:hover .track {
+  animation-play-state: paused;
+}
+
+@keyframes scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+  .tape {
+    overflow-x: auto;
+  }
+}
+
+.item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.3rem 1.1rem;
+  border-right: 1px solid var(--rule-faint);
+  font-size: var(--t-micro);
+  white-space: nowrap;
+}
+
+.name {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  color: var(--text-soft);
+}
+
+.value {
+  color: var(--text);
+}
+
+.up {
+  color: var(--gain);
+}
+
+.down {
+  color: var(--loss);
+}

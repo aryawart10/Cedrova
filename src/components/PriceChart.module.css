@@ -1,0 +1,74 @@
+.wrap {
+  position: relative;
+  width: 100%;
+}
+
+.svg {
+  display: block;
+  cursor: crosshair;
+  overflow: visible;
+}
+
+.axis {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  fill: var(--text-mute);
+  letter-spacing: -0.01em;
+}
+
+.lastTag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  fill: var(--surface);
+}
+
+[data-theme='ink'] .lastTag {
+  fill: var(--surface-sunk);
+}
+
+.draw {
+  animation: drawPath 1100ms var(--ease-out-expo) both;
+}
+
+.tip {
+  position: absolute;
+  pointer-events: none;
+  min-width: 142px;
+  padding: var(--s-2) var(--s-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lift);
+  transform: translateX(12px);
+}
+
+.tipDate {
+  font-size: var(--t-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-bottom: var(--s-1);
+}
+
+.tipGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1px var(--s-3);
+  margin: 0;
+  font-size: var(--t-micro);
+}
+
+.tipGrid dt {
+  color: var(--text-mute);
+  font-weight: 600;
+}
+
+.tipGrid dd {
+  margin: 0;
+  text-align: right;
+  font-size: var(--t-micro);
+}

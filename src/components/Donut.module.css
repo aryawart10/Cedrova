@@ -1,0 +1,10 @@
+.svg {
+  overflow: visible;
+}
+
+.arc {
+  transition:
+    stroke-width var(--dur) var(--ease-out-expo),
+    stroke var(--dur) var(--ease-out-expo);
+  cursor: default;
+}

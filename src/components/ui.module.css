@@ -1,0 +1,370 @@
+/* ── SectionHead ───────────────────────────────────────── */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-4) var(--s-6);
+  padding-bottom: var(--s-4);
+  border-bottom: 1px solid var(--rule-strong);
+  margin-bottom: var(--s-6);
+}
+
+.headMain {
+  position: relative;
+  padding-left: 2.6rem;
+  min-width: min(100%, 26ch);
+}
+
+.headNo {
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  font-weight: 600;
+  color: var(--accent-deep);
+  letter-spacing: 0.02em;
+}
+
+.headNo::after {
+  content: '';
+  position: absolute;
+  left: 0.1rem;
+  top: 1.5rem;
+  width: 1px;
+  height: 0.9rem;
+  background: var(--rule-strong);
+}
+
+.headTitle {
+  font-size: var(--t-h2);
+  margin: 0;
+}
+
+.headLede {
+  margin-top: var(--s-2);
+  max-width: 54ch;
+  color: var(--text-soft);
+  font-size: var(--t-small);
+  line-height: 1.6;
+}
+
+.headAside {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+/* ── Delta ─────────────────────────────────────────────── */
+
+.delta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.deltaArrow {
+  font-size: 0.62em;
+  transform: translateY(-0.1em);
+}
+
+.d_gain {
+  color: var(--gain);
+}
+.d_loss {
+  color: var(--loss);
+}
+.d_flat {
+  color: var(--text-mute);
+}
+
+.ds_sm {
+  font-size: var(--t-micro);
+}
+.ds_md {
+  font-size: var(--t-small);
+}
+.ds_lg {
+  font-size: var(--t-lead);
+}
+
+/* ── Tag ───────────────────────────────────────────────── */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.14em 0.5em;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.t_accent {
+  border-color: color-mix(in oklch, var(--accent) 55%, transparent);
+  color: var(--accent-deep);
+  background: var(--accent-wash);
+}
+.t_agent {
+  border-color: color-mix(in oklch, var(--agent) 45%, transparent);
+  color: var(--agent);
+  background: var(--agent-wash);
+}
+.t_gain {
+  border-color: color-mix(in oklch, var(--gain) 45%, transparent);
+  color: var(--gain);
+  background: var(--gain-wash);
+}
+.t_loss {
+  border-color: color-mix(in oklch, var(--loss) 45%, transparent);
+  color: var(--loss);
+  background: var(--loss-wash);
+}
+
+.tagSolid {
+  background: var(--surface-inverse);
+  color: var(--text-inverse);
+  border-color: transparent;
+}
+
+/* ── Segmented ─────────────────────────────────────────── */
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.segBtn {
+  padding: 0.3rem 0.62rem;
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-mute);
+  border-right: 1px solid var(--rule);
+  transition:
+    color var(--dur-fast) linear,
+    background var(--dur-fast) linear;
+}
+
+.segBtn:last-child {
+  border-right: none;
+}
+
+.segBtn:hover {
+  color: var(--text);
+  background: var(--surface-sunk);
+}
+
+.segOn,
+.segOn:hover {
+  color: var(--text-inverse);
+  background: var(--surface-inverse);
+}
+
+/* ── Chip ──────────────────────────────────────────────── */
+
+.chip {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 0.44rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  transition:
+    border-color var(--dur-fast) linear,
+    background var(--dur-fast) linear,
+    transform var(--dur) var(--ease-out-expo);
+}
+
+.chip:hover {
+  border-color: var(--rule-strong);
+  transform: translateY(-1px);
+}
+
+.chipOn {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.chipLabel {
+  font-size: var(--t-small);
+  font-weight: 600;
+}
+
+.chipDetail {
+  font-size: 10.5px;
+  color: var(--text-mute);
+  letter-spacing: 0.01em;
+}
+
+.chipOn .chipDetail {
+  color: var(--accent-deep);
+}
+
+/* ── Stat ──────────────────────────────────────────────── */
+
+.stat {
+  min-width: 0;
+}
+
+.statValue {
+  font-size: var(--t-figure);
+  line-height: 1.1;
+  margin-top: 0.15em;
+  font-weight: 500;
+}
+
+.statSub {
+  margin-top: 0.1em;
+  font-size: var(--t-micro);
+  color: var(--text-mute);
+}
+
+/* ── Button ────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  border-radius: var(--radius);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) linear,
+    border-color var(--dur-fast) linear,
+    color var(--dur-fast) linear,
+    transform var(--dur) var(--ease-out-expo);
+}
+
+.btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.btn:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.bs_sm {
+  padding: 0.28rem 0.6rem;
+  font-size: var(--t-micro);
+}
+.bs_md {
+  padding: 0.46rem 0.9rem;
+  font-size: var(--t-small);
+}
+
+.btnFull {
+  width: 100%;
+}
+
+.b_solid {
+  background: var(--surface-inverse);
+  color: var(--text-inverse);
+  border: 1px solid transparent;
+}
+.b_solid:not(:disabled):hover {
+  background: color-mix(in oklch, var(--surface-inverse) 86%, var(--accent));
+}
+
+.b_ghost {
+  border: 1px solid var(--rule-strong);
+  color: var(--text);
+}
+.b_ghost:not(:disabled):hover {
+  background: var(--surface-sunk);
+  border-color: var(--text-mute);
+}
+
+.b_quiet {
+  border: 1px solid transparent;
+  color: var(--text-soft);
+}
+.b_quiet:not(:disabled):hover {
+  color: var(--text);
+  background: var(--surface-sunk);
+}
+
+.b_danger {
+  border: 1px solid color-mix(in oklch, var(--loss) 45%, transparent);
+  color: var(--loss);
+}
+.b_danger:not(:disabled):hover {
+  background: var(--loss-wash);
+}
+
+/* ── Panel ─────────────────────────────────────────────── */
+
+.panel {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  min-width: 0;
+}
+
+.panelBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 0.6rem var(--s-4);
+  border-bottom: 1px solid var(--rule);
+}
+
+.panelTitle {
+  font-size: var(--t-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+.panelMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--t-micro);
+  color: var(--text-mute);
+}
+
+.panelBody {
+  padding: var(--s-4);
+}
+
+/* ── Empty ─────────────────────────────────────────────── */
+
+.empty {
+  padding: var(--s-7) var(--s-5);
+  text-align: center;
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--radius);
+}
+
+.emptyTitle {
+  font-size: var(--t-h3);
+}
+
+.emptyBody {
+  margin: var(--s-2) auto var(--s-4);
+  max-width: 44ch;
+  font-size: var(--t-small);
+  color: var(--text-soft);
+}

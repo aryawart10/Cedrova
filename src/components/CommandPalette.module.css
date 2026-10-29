@@ -1,0 +1,135 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  padding: clamp(3rem, 12vh, 9rem) var(--s-4) var(--s-4);
+  background: color-mix(in oklch, var(--surface-inverse) 34%, transparent);
+  backdrop-filter: blur(2px);
+  animation: fadeIn var(--dur) var(--ease-out-quart) both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.sheet {
+  width: min(100%, 36rem);
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+  animation: sheetIn var(--dur-slow) var(--ease-out-expo) both;
+}
+
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.985);
+  }
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--rule);
+}
+
+.prompt {
+  font-family: var(--font-mono);
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+
+.input {
+  flex: 1;
+  font-size: var(--t-lead);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--text-mute);
+}
+
+.list {
+  overflow-y: auto;
+  padding: var(--s-2) 0;
+  flex: 1;
+}
+
+.group {
+  padding: var(--s-3) var(--s-4) var(--s-1);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  width: 100%;
+  padding: 0.38rem var(--s-4);
+  text-align: left;
+  border-left: 2px solid transparent;
+}
+
+.rowOn {
+  background: var(--surface-sunk);
+  border-left-color: var(--accent);
+}
+
+.rowLabel {
+  font-size: var(--t-small);
+  font-weight: 500;
+}
+
+.rowHint {
+  font-size: var(--t-micro);
+  color: var(--text-mute);
+  flex-shrink: 0;
+}
+
+.none {
+  padding: var(--s-6) var(--s-4);
+  text-align: center;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+}
+
+.foot {
+  display: flex;
+  gap: var(--s-4);
+  padding: var(--s-2) var(--s-4);
+  border-top: 1px solid var(--rule);
+  font-size: var(--t-micro);
+  color: var(--text-mute);
+  background: var(--surface-sunk);
+}
+
+.foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+.kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 0.05em 0.35em;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  color: var(--text-mute);
+}

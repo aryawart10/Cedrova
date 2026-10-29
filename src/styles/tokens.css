@@ -1,0 +1,132 @@
+/* ──────────────────────────────────────────────────────────────
+   alphaOS design tokens
+   Two committed palettes: "paper" (default, editorial light) and
+   "ink" (dark desk). Everything else derives from these.
+   ────────────────────────────────────────────────────────────── */
+
+:root,
+[data-theme='paper'] {
+  color-scheme: light;
+
+  /* surfaces — warm, slightly yellowed newsprint */
+  --surface: oklch(97.4% 0.008 85);
+  --surface-raised: oklch(99.2% 0.005 85);
+  --surface-sunk: oklch(94.6% 0.013 82);
+  --surface-inverse: oklch(21% 0.022 258);
+
+  /* text — navy-tinted ink, never pure black */
+  --text: oklch(22% 0.022 258);
+  --text-soft: oklch(40% 0.018 258);
+  --text-mute: oklch(56% 0.014 258);
+  --text-inverse: oklch(97% 0.006 85);
+
+  /* hairlines do the work that cards and shadows usually do */
+  --rule: color-mix(in oklch, var(--text) 13%, transparent);
+  --rule-strong: color-mix(in oklch, var(--text) 26%, transparent);
+  --rule-faint: color-mix(in oklch, var(--text) 7%, transparent);
+
+  /* brand accent — saffron. Used sparingly: active state, marks, focus. */
+  --accent: oklch(69% 0.16 62);
+  --accent-deep: oklch(45% 0.125 56);
+  --accent-wash: color-mix(in oklch, var(--accent) 16%, var(--surface));
+
+  /* secondary accent for the agent subsystem */
+  --agent: oklch(47% 0.115 268);
+  --agent-wash: color-mix(in oklch, var(--agent) 12%, var(--surface));
+
+  /* market semantics — muted, earthy, not neon */
+  --gain: oklch(50% 0.115 157);
+  --gain-wash: color-mix(in oklch, var(--gain) 13%, var(--surface));
+  --loss: oklch(52% 0.155 27);
+  --loss-wash: color-mix(in oklch, var(--loss) 13%, var(--surface));
+
+  --shadow-lift: 0 1px 2px color-mix(in oklch, var(--text) 8%, transparent),
+    0 12px 28px -12px color-mix(in oklch, var(--text) 20%, transparent);
+}
+
+[data-theme='ink'] {
+  color-scheme: dark;
+
+  --surface: oklch(19.5% 0.018 258);
+  --surface-raised: oklch(23.5% 0.021 258);
+  --surface-sunk: oklch(15.5% 0.015 258);
+  --surface-inverse: oklch(95% 0.007 85);
+
+  --text: oklch(94% 0.008 85);
+  --text-soft: oklch(76% 0.012 258);
+  --text-mute: oklch(60% 0.014 258);
+  --text-inverse: oklch(18% 0.02 258);
+
+  --rule: color-mix(in oklch, var(--text) 16%, transparent);
+  --rule-strong: color-mix(in oklch, var(--text) 32%, transparent);
+  --rule-faint: color-mix(in oklch, var(--text) 9%, transparent);
+
+  --accent: oklch(79% 0.148 72);
+  --accent-deep: oklch(88% 0.12 78);
+  --accent-wash: color-mix(in oklch, var(--accent) 15%, var(--surface));
+
+  --agent: oklch(72% 0.12 272);
+  --agent-wash: color-mix(in oklch, var(--agent) 14%, var(--surface));
+
+  --gain: oklch(74% 0.145 158);
+  --gain-wash: color-mix(in oklch, var(--gain) 14%, var(--surface));
+  --loss: oklch(68% 0.17 27);
+  --loss-wash: color-mix(in oklch, var(--loss) 14%, var(--surface));
+
+  --shadow-lift: 0 1px 2px oklch(0% 0 0 / 0.4), 0 14px 32px -12px oklch(0% 0 0 / 0.55);
+}
+
+:root {
+  /* ── type ─────────────────────────────────────────────── */
+  --font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --font-body: 'Instrument Sans', 'Helvetica Neue', Helvetica, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* fluid modular scale, ratio ~1.25 */
+  --t-eyebrow: 0.6875rem;
+  --t-micro: 0.75rem;
+  --t-small: 0.8125rem;
+  --t-body: 0.9375rem;
+  --t-lead: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --t-h3: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --t-h2: clamp(1.75rem, 1.5rem + 1.1vw, 2.5rem);
+  --t-h1: clamp(2.5rem, 1.9rem + 2.8vw, 4.25rem);
+  --t-figure: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
+
+  /* ── space ────────────────────────────────────────────── */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: clamp(3rem, 2rem + 4vw, 5.5rem);
+  --s-9: clamp(4rem, 2.5rem + 7vw, 9rem);
+
+  --gutter: clamp(1.125rem, 0.5rem + 2.6vw, 3.5rem);
+  --measure: 62ch;
+
+  /* ── motion ───────────────────────────────────────────── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 140ms;
+  --dur: 240ms;
+  --dur-slow: 520ms;
+
+  --radius-sm: 3px;
+  --radius: 5px;
+  --radius-pill: 999px;
+
+  --header-h: 3.5rem;
+  --status-h: 1.875rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur: 1ms;
+    --dur-slow: 1ms;
+  }
+}
