@@ -15,7 +15,7 @@ const CONNECT_STEPS = [
 export function BrokersTab() {
   const [focus, setFocus] = useState<string | null>(null);
   const [logFilter, setLogFilter] = useState<'all' | 'rejected'>('all');
-  const selected = focus ? BROKERS.find((b) => b.id === focus)! : null;
+  const selected = (focus && BROKERS.find((b) => b.id === focus)) || null;
 
   const connectedValue = BROKERS.filter((b) => b.status === 'connected').reduce(
     (a, b) => a + (b.holdingsValue ?? 0),

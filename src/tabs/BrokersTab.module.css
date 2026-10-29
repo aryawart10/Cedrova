@@ -229,6 +229,10 @@
   font-size: 0.72em;
 }
 
+.st_todo {
+  opacity: 0.72;
+}
+
 .st_done {
   color: var(--text-soft);
 }

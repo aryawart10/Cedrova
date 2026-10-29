@@ -110,6 +110,12 @@
   white-space: nowrap;
 }
 
+/* Neutral is the base .tag look; declared so the dynamic class
+   lookup always resolves instead of emitting the string "undefined". */
+.t_neutral {
+  color: var(--text-soft);
+}
+
 .t_accent {
   border-color: color-mix(in oklch, var(--accent) 55%, transparent);
   color: var(--accent-deep);
