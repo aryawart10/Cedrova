@@ -111,7 +111,7 @@ export const AGENTS: Agent[] = [
   },
   {
     id: 'options',
-    name: 'Options Strategist',
+    name: 'Futures & Options Specialist',
     discipline: 'Derivatives',
     pitch: 'Picks the structure, not just the direction.',
     about:

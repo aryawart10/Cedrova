@@ -3,8 +3,10 @@
    No test runner is wired up; this is deliberately a plain script so it
    stays runnable without adding a dependency. */
 
-import { classify, extractAmount, extractSymbol } from '../src/lib/intent';
+import { classify, extractAmount, extractSymbol, INTENT_LABEL } from '../src/lib/intent';
 import type { IntentId } from '../src/lib/intent';
+import { AGENT_SCOPE, INTENT_OWNER, inScope } from '../src/lib/desk';
+import { AGENTS } from '../src/data/agents';
 
 /* 'backtest' and 'strategy-build' intentionally converge on the same
    multi-step surface in AskTab, so either is acceptable where noted. */
@@ -74,7 +76,28 @@ for (const [p, want] of syms) {
   else fails.push(`  symbol: want ${want}, got ${got} \u2014 "${p}"`);
 }
 
-const total = cases.length + shouldBeNull.length + amounts.length + syms.length;
+/* Specialist routing. Pinning an agent only makes sense if every intent
+   has exactly one owning desk and every owner accepts its own work. */
+const allIntents = Object.keys(INTENT_LABEL) as IntentId[];
+let deskChecks = 0;
+
+for (const i of allIntents) {
+  deskChecks++;
+  const owner = INTENT_OWNER[i];
+  if (!owner) fails.push(`  desk: no owner for intent ${i}`);
+  else if (!inScope(owner, i)) fails.push(`  desk: owner ${owner} does not accept its own intent ${i}`);
+  else pass++;
+}
+
+for (const a of AGENTS) {
+  deskChecks++;
+  const scope = AGENT_SCOPE[a.id];
+  if (!scope || scope.length === 0) fails.push(`  desk: ${a.id} has an empty scope`);
+  else if (scope.some((i) => !allIntents.includes(i))) fails.push(`  desk: ${a.id} scopes an unknown intent`);
+  else pass++;
+}
+
+const total = cases.length + shouldBeNull.length + amounts.length + syms.length + deskChecks;
 if (fails.length) {
   console.error(`\n${fails.length} of ${total} checks failed:\n${fails.join('\n')}\n`);
   process.exit(1);

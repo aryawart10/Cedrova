@@ -345,3 +345,208 @@
     transform: none;
   }
 }
+
+/* ── Desk roster: Auto, or pin one specialist ─────────────────── */
+
+.roster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: var(--s-5) 0 var(--s-4);
+}
+
+.rosterCompact {
+  margin: 0 0 var(--s-3);
+}
+
+.rosterLabel {
+  font: var(--t-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin: 0;
+}
+
+.rosterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.pill {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5ch;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-soft);
+  font: var(--t-small);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out-quart),
+    background var(--dur-fast) var(--ease-out-quart),
+    color var(--dur-fast) var(--ease-out-quart);
+}
+
+.pill:hover:not(:disabled) {
+  border-color: var(--rule-strong);
+  color: var(--text);
+}
+
+.pillOn {
+  background: var(--agent-wash);
+  border-color: var(--agent);
+  color: var(--text);
+}
+
+.pillOff {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.pillNo {
+  font: var(--t-micro);
+  font-family: var(--font-mono);
+  color: var(--text-mute);
+}
+
+.pillOn .pillNo {
+  color: var(--agent);
+}
+
+.pillSub {
+  font: var(--t-micro);
+  color: var(--text-mute);
+}
+
+.rosterCompact .pillSub {
+  display: none;
+}
+
+/* ── Scope list shown when a specialist is pinned ─────────────── */
+
+.scopeList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+.scopeList li {
+  font: var(--t-small);
+  color: var(--text-soft);
+  padding-left: 1.4ch;
+  position: relative;
+}
+
+.scopeList li::before {
+  content: '\2713';
+  position: absolute;
+  left: 0;
+  color: var(--gain);
+}
+
+.scopeNote {
+  font: var(--t-micro);
+  color: var(--text-mute);
+  margin: var(--s-2) 0 0;
+  max-width: 34ch;
+}
+
+/* ── Honest handoff when a pinned desk is asked the wrong thing ── */
+
+.handoff {
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--loss);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunk);
+  padding: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.handoffLead {
+  font: var(--t-body);
+  color: var(--text);
+  margin: 0;
+  max-width: var(--measure);
+}
+
+.handoffOwner {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  font: var(--t-small);
+  color: var(--text-soft);
+  margin: 0;
+  max-width: var(--measure);
+}
+
+.handoffNo {
+  font: var(--t-micro);
+  font-family: var(--font-mono);
+  color: var(--agent);
+  border: 1px solid var(--agent);
+  border-radius: var(--radius-sm);
+  padding: 0.1em 0.4em;
+  flex: none;
+}
+
+.handoffActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.handoffGo,
+.handoffStay {
+  padding: var(--s-2) var(--s-4);
+  border-radius: var(--radius-sm);
+  font: var(--t-small);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out-quart),
+    border-color var(--dur-fast) var(--ease-out-quart);
+}
+
+.handoffGo {
+  background: var(--surface-inverse);
+  color: var(--text-inverse);
+  border: 1px solid var(--surface-inverse);
+}
+
+.handoffGo:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+.handoffStay {
+  background: transparent;
+  color: var(--text-soft);
+  border: 1px solid var(--rule);
+}
+
+.handoffStay:hover {
+  border-color: var(--rule-strong);
+  color: var(--text);
+}
+
+/* ── Route note extras ───────────────────────────────────────── */
+
+.routeWarn {
+  font: var(--t-micro);
+  color: var(--loss);
+}
+
+.barStray .barRouteDot {
+  background: var(--loss);
+}
+
+.barStray {
+  color: var(--loss);
+}

@@ -13,10 +13,10 @@ import { marketSession, timeLabel } from './lib/format';
 import type { AgentId } from './data/agents';
 import s from './App.module.css';
 
-export type ModuleId = 'ask' | 'markets' | 'agents' | 'strategies' | 'brokers' | 'portfolio';
+export type ModuleId = 'build' | 'markets' | 'agents' | 'strategies' | 'brokers' | 'portfolio';
 
 const MODULES: { id: ModuleId; label: string; no: string }[] = [
-  { id: 'ask', label: 'Ask', no: '00' },
+  { id: 'build', label: 'Build', no: '00' },
   { id: 'markets', label: 'Markets', no: '01' },
   { id: 'agents', label: 'AI Agents', no: '02' },
   { id: 'strategies', label: 'Strategies', no: '03' },
@@ -30,7 +30,7 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('alphaos:theme') as Theme) ?? 'paper',
   );
-  const [module, setModule] = useState<ModuleId>('ask');
+  const [module, setModule] = useState<ModuleId>('build');
   const [symbol, setSymbol] = useState('RELIANCE');
   const [focusAgent, setFocusAgent] = useState<AgentId | null>(null);
   const [focusStrategy, setFocusStrategy] = useState<string | null>(null);
@@ -94,7 +94,7 @@ export default function App() {
     <div className={s.app}>
       <header className={s.header}>
         <div className={s.headerInner}>
-          <button className={s.brandBtn} onClick={() => goModule('ask')} aria-label="alphaOS home">
+          <button className={s.brandBtn} onClick={() => goModule('build')} aria-label="alphaOS home">
             <Brand />
           </button>
 
@@ -135,7 +135,7 @@ export default function App() {
       </header>
 
       <main className={s.main}>
-        {module === 'ask' && <AskTab onGoStrategies={() => goModule('strategies')} />}
+        {module === 'build' && <AskTab onGoStrategies={() => goModule('strategies')} />}
         {module === 'markets' && <MarketsTab symbol={symbol} onSymbol={setSymbol} onGoAgents={() => goModule('agents')} />}
         {module === 'agents' && (
           <AgentsTab

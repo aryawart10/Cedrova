@@ -13,6 +13,9 @@ import {
   SignalCheckAnswer,
   TradeabilityAnswer,
 } from '../answers/QuickAnswers';
+import { AGENTS, agentById } from '../data/agents';
+import type { AgentId } from '../data/agents';
+import { AGENT_SCOPE, inScope, ownerOf } from '../lib/desk';
 import { SectionHead, Tag } from '../components/ui';
 import s from './AskTab.module.css';
 
@@ -63,12 +66,22 @@ type Turn = {
   riskPct: number;
   idea: StrategyIdea | null;
   symbol: string | null;
+  /** Specialist pinned when the prompt was sent; null means Auto. */
+  agent: AgentId | null;
+  /** Set when the user tells an out-of-remit specialist to answer anyway. */
+  override: boolean;
 };
 
 const SYMBOLS = UNIVERSE.map((i) => i.symbol);
 
 /** Desk chatter shown while an answer is being prepared. */
-function deskTrace(match: Match | null): string[] {
+function deskTrace(match: Match | null, agent: AgentId | null): string[] {
+  const steps = intentTrace(match);
+  if (!agent) return steps;
+  return [`${agentById(agent).name} picked it up`, ...steps.slice(1)];
+}
+
+function intentTrace(match: Match | null): string[] {
   if (!match) return ['Reading your question'];
   switch (match.id) {
     case 'strategy-build':
@@ -95,6 +108,7 @@ function deskTrace(match: Match | null): string[] {
 export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
   const [draft, setDraft] = useState('');
   const [turns, setTurns] = useState<Turn[]>([]);
+  const [agent, setAgent] = useState<AgentId | null>(null);
   const nextId = useRef(1);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -114,6 +128,8 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
       riskPct: 20,
       idea: null,
       symbol: extractSymbol(prompt, SYMBOLS),
+      agent,
+      override: false,
     };
     setTurns((t) => [...t, turn]);
     setDraft('');
@@ -122,38 +138,57 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
   const patch = (id: number, next: Partial<Turn>) =>
     setTurns((ts) => ts.map((t) => (t.id === id ? { ...t, ...next } : t)));
 
+  /** Handoff: move the turn to the owning desk and pin it going forward. */
+  const handoff = (id: number, to: AgentId) => {
+    setAgent(to);
+    patch(id, { agent: to });
+  };
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [turns]);
 
   const empty = turns.length === 0;
+  const pinned = agent ? agentById(agent) : null;
 
   return (
     <div className={`${s.wrap} ${empty ? s.wrapEmpty : ''}`}>
       {empty ? (
         <div className={s.hero}>
-          <p className="u-eyebrow">Module 00 &middot; Ask</p>
+          <p className="u-eyebrow">Module 00 &middot; Build</p>
           <h1 className={`u-display ${s.heroTitle}`}>
-            Ask once. <em>The desk does the work.</em>
+            Let&rsquo;s build. <em>Say it in plain English.</em>
           </h1>
           <p className={s.heroLede}>
-            One bar for everything: build a strategy, test a signal, find out why a stock fell, check whether you could
-            actually trade it. Type what you want in plain English.
+            {pinned
+              ? pinned.about
+              : 'One bar for everything: build a strategy, test a signal, find out why a stock fell, check whether you could actually trade it. Leave it on Auto and the right desk picks it up, or pin a specialist below.'}
           </p>
+
+          <Roster active={agent} onPick={setAgent} />
+
           <PromptBar
             ref={inputRef}
             value={draft}
             onChange={setDraft}
             onSubmit={submit}
+            agent={agent}
             big
-            placeholder="I want to build a mean reversion strategy on NIFTY 100 stocks&#8230;"
+            placeholder={
+              pinned
+                ? `Ask ${pinned.name} something\u2026`
+                : 'I want to build a mean reversion strategy on NIFTY 100 stocks\u2026'
+            }
           />
-          <div className={s.suggests}>
-            {SUGGESTIONS.map((g) => (
-              <div key={g.desk} className={s.suggestGroup}>
-                <p className={s.suggestDesk}>{g.desk}</p>
+
+          {agent && pinned ? (
+            <div className={s.suggests}>
+              <div className={s.suggestGroup}>
+                <p className={s.suggestDesk}>
+                  {pinned.name} &middot; {pinned.discipline}
+                </p>
                 <ul className={s.suggestList}>
-                  {g.items.map((item) => (
+                  {pinned.prompts.map((item) => (
                     <li key={item}>
                       <button className={s.suggestBtn} onClick={() => submit(item)}>
                         {item}
@@ -162,14 +197,42 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
                   ))}
                 </ul>
               </div>
-            ))}
-          </div>
+              <div className={s.suggestGroup}>
+                <p className={s.suggestDesk}>What this desk will take</p>
+                <ul className={s.scopeList}>
+                  {AGENT_SCOPE[agent].map((i) => (
+                    <li key={i}>{INTENT_LABEL[i]}</li>
+                  ))}
+                </ul>
+                <p className={s.scopeNote}>
+                  Anything else and it will tell you which desk owns it instead of guessing.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className={s.suggests}>
+              {SUGGESTIONS.map((g) => (
+                <div key={g.desk} className={s.suggestGroup}>
+                  <p className={s.suggestDesk}>{g.desk}</p>
+                  <ul className={s.suggestList}>
+                    {g.items.map((item) => (
+                      <li key={item}>
+                        <button className={s.suggestBtn} onClick={() => submit(item)}>
+                          {item}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <>
           <SectionHead
             no="00"
-            title="Ask"
+            title="Build"
             lede="Each answer shows which desk handled it and what in your wording triggered that."
             aside={
               <button className={s.clearBtn} onClick={() => setTurns([])}>
@@ -189,12 +252,9 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
                 </div>
 
                 {t.working ? (
-                  <Working steps={deskTrace(t.match)} onDone={() => patch(t.id, { working: false })} />
+                  <Working steps={deskTrace(t.match, t.agent)} onDone={() => patch(t.id, { working: false })} />
                 ) : (
-                  <>
-                    <RouteNote match={t.match} />
-                    <AnswerFor turn={t} patch={patch} onGoStrategies={onGoStrategies} />
-                  </>
+                  <Resolved turn={t} patch={patch} onHandoff={handoff} onGoStrategies={onGoStrategies} />
                 )}
               </article>
             ))}
@@ -202,7 +262,14 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
           </div>
 
           <div className={s.dock}>
-            <PromptBar value={draft} onChange={setDraft} onSubmit={submit} placeholder="Ask a follow-up&#8230;" />
+            <Roster active={agent} onPick={setAgent} compact />
+            <PromptBar
+              value={draft}
+              onChange={setDraft}
+              onSubmit={submit}
+              agent={agent}
+              placeholder="Ask a follow-up&#8230;"
+            />
           </div>
         </>
       )}
@@ -210,9 +277,149 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
   );
 }
 
+/* ── The desk roster: Auto, or pin one specialist ───────── */
+
+function Roster({
+  active,
+  onPick,
+  compact,
+}: {
+  active: AgentId | null;
+  onPick: (id: AgentId | null) => void;
+  compact?: boolean;
+}) {
+  return (
+    <div className={`${s.roster} ${compact ? s.rosterCompact : ''}`}>
+      <p className={s.rosterLabel} id="roster-label">
+        Model
+      </p>
+      <div className={s.rosterRow} role="radiogroup" aria-labelledby="roster-label">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={active === null}
+          className={`${s.pill} ${active === null ? s.pillOn : ''}`}
+          onClick={() => onPick(null)}
+        >
+          <span className={s.pillNo}>00</span>
+          Auto
+          <span className={s.pillSub}>route for me</span>
+        </button>
+        {AGENTS.map((a) => {
+          const off = a.status === 'waitlist';
+          return (
+            <button
+              key={a.id}
+              type="button"
+              role="radio"
+              aria-checked={active === a.id}
+              disabled={off}
+              title={off ? `${a.name} is on the waitlist and not wired up in this prototype` : a.pitch}
+              className={`${s.pill} ${active === a.id ? s.pillOn : ''} ${off ? s.pillOff : ''}`}
+              onClick={() => onPick(a.id)}
+            >
+              <span className={s.pillNo}>{a.no}</span>
+              {a.name}
+              <span className={s.pillSub}>{off ? 'waitlist' : a.discipline}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── Answer, or an honest handoff ─────────────────── */
+
+function Resolved({
+  turn,
+  patch,
+  onHandoff,
+  onGoStrategies,
+}: {
+  turn: Turn;
+  patch: (id: number, next: Partial<Turn>) => void;
+  onHandoff: (id: number, to: AgentId) => void;
+  onGoStrategies: () => void;
+}) {
+  const intent = turn.match?.id;
+  const misrouted = Boolean(turn.agent && intent && !turn.override && !inScope(turn.agent, intent));
+
+  if (misrouted && turn.agent && intent) {
+    return (
+      <>
+        <RouteNote match={turn.match} agent={turn.agent} misrouted />
+        <Handoff
+          from={turn.agent}
+          to={ownerOf(intent)}
+          intent={INTENT_LABEL[intent]}
+          onHandoff={() => onHandoff(turn.id, ownerOf(intent))}
+          onAnyway={() => patch(turn.id, { override: true })}
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <RouteNote match={turn.match} agent={turn.agent} override={turn.override} />
+      <AnswerFor turn={turn} patch={patch} onGoStrategies={onGoStrategies} />
+    </>
+  );
+}
+
+function Handoff({
+  from,
+  to,
+  intent,
+  onHandoff,
+  onAnyway,
+}: {
+  from: AgentId;
+  to: AgentId;
+  intent: string;
+  onHandoff: () => void;
+  onAnyway: () => void;
+}) {
+  const a = agentById(from);
+  const b = agentById(to);
+  return (
+    <div className={s.handoff}>
+      <p className={s.handoffLead}>
+        That is a <strong>{intent.toLowerCase()}</strong> question. {a.name} does not cover it &mdash; its remit is{' '}
+        {a.discipline.toLowerCase()}, and it would be guessing.
+      </p>
+      <p className={s.handoffOwner}>
+        <span className={s.handoffNo}>{b.no}</span>
+        <span>
+          <strong>{b.name}</strong> owns this one. {b.pitch}
+        </span>
+      </p>
+      <div className={s.handoffActions}>
+        <button className={s.handoffGo} onClick={onHandoff}>
+          Hand it to {b.name}
+        </button>
+        <button className={s.handoffStay} onClick={onAnyway}>
+          Let {a.name} try anyway
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ── Routing explainer: makes the mechanism visible ─────────── */
 
-function RouteNote({ match }: { match: Match | null }) {
+function RouteNote({
+  match,
+  agent,
+  misrouted,
+  override,
+}: {
+  match: Match | null;
+  agent: AgentId | null;
+  misrouted?: boolean;
+  override?: boolean;
+}) {
   if (!match) {
     return (
       <p className={s.route}>
@@ -220,13 +427,17 @@ function RouteNote({ match }: { match: Match | null }) {
       </p>
     );
   }
+  const a = agent ? agentById(agent) : null;
   return (
     <p className={s.route}>
-      <Tag tone="agent">{INTENT_DESK[match.id]}</Tag>
+      <Tag tone={misrouted ? 'loss' : 'agent'}>{a ? a.name : INTENT_DESK[match.id]}</Tag>
       <span className={s.routeLabel}>{INTENT_LABEL[match.id]}</span>
       <span className={s.routeHits}>
-        matched on {match.hits.slice(0, 3).map((h) => `\u201C${h}\u201D`).join(', ')}
+        {misrouted
+          ? 'outside this desk\u2019s remit'
+          : `matched on ${match.hits.slice(0, 3).map((h) => `\u201C${h}\u201D`).join(', ')}`}
       </span>
+      {override ? <span className={s.routeWarn}>answered outside remit at your request</span> : null}
     </p>
   );
 }
@@ -338,13 +549,16 @@ type BarProps = {
   onSubmit: (v: string) => void;
   placeholder?: string;
   big?: boolean;
+  agent: AgentId | null;
 };
 
 const PromptBar = forwardRef<HTMLTextAreaElement, BarProps>(function PromptBar(
-  { value, onChange, onSubmit, placeholder, big },
+  { value, onChange, onSubmit, placeholder, big, agent },
   ref,
 ) {
   const live = classify(value);
+  const pinned = agent ? agentById(agent) : null;
+  const strays = Boolean(pinned && live && !inScope(agent!, live.id));
   return (
     <form
       className={`${s.bar} ${big ? s.barBig : ''}`}
@@ -366,19 +580,25 @@ const PromptBar = forwardRef<HTMLTextAreaElement, BarProps>(function PromptBar(
             onSubmit(value);
           }
         }}
-        aria-label="Ask the research desk"
+        aria-label="Describe what you want to build"
       />
       <div className={s.barFoot}>
         {live ? (
-          <span className={s.barRoute}>
+          <span className={`${s.barRoute} ${strays ? s.barStray : ''}`}>
             <span className={s.barRouteDot} aria-hidden />
-            Routing to {INTENT_DESK[live.id]}
+            {pinned
+              ? strays
+                ? `${pinned.name} will hand this to ${agentById(ownerOf(live.id)).name}`
+                : `${pinned.name} \u00B7 ${INTENT_LABEL[live.id]}`
+              : `Routing to ${INTENT_DESK[live.id]}`}
           </span>
         ) : (
-          <span className={s.barHint}>Plain English. Shift + Enter for a new line.</span>
+          <span className={s.barHint}>
+            {pinned ? `${pinned.name} is listening. Shift + Enter for a new line.` : 'Plain English. Shift + Enter for a new line.'}
+          </span>
         )}
         <button className={s.send} type="submit" disabled={!value.trim()}>
-          Ask <kbd className={s.kbd}>&crarr;</kbd>
+          Build <kbd className={s.kbd}>&crarr;</kbd>
         </button>
       </div>
     </form>

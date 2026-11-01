@@ -9,7 +9,7 @@ seeds so the UI is stable and reviewable. Nothing here is investment advice or a
 
 ---
 
-## Module 00 - Ask: the universal prompt bar
+## Module 00 - Build: the universal prompt bar
 
 The landing surface is a single input that classifies what you typed and mounts a
 purpose-built answer surface. It does not return prose. Each answer shows which desk
@@ -33,6 +33,36 @@ Nine intents are recognised:
 Anything with no trading intent falls through to a state that shows the recognised
 shapes rather than guessing a desk.
 
+### Changing the model: Auto, or pin a specialist
+
+The bar runs in two modes, picked from the **Model** roster above the input.
+
+**Auto** (the default) classifies the prompt and hands it to whichever desk owns that
+kind of request.
+
+**Pinned** puts one of the seven specialists in charge of every prompt. The hero copy,
+the example prompts and the live routing hint all change to that desk, and the answer is
+attributed to it by name. Each specialist accepts only the request types in its remit:
+
+| Specialist | Accepts |
+| --- | --- |
+| **Equity Research Specialist** | `research`, `why-fell` |
+| **Trading Strategy Maker** | `strategy-build`, `place-orders` |
+| **Backtesting Specialist** | `backtest`, `signal-check`, `tradeable`, `strategy-build` |
+| **Futures & Options Specialist** | `hedge`, `market-view` |
+| **Portfolio Risk Auditor** | `tradeable`, `hedge` |
+| **Macro & Event Analyst** | `market-view`, `why-fell` |
+| **Screener Composer** | `research` (waitlist, not selectable) |
+
+Ask a pinned specialist something outside its remit and it does **not** answer. It names
+the request type, says why this desk is the wrong one, names the desk that owns it, and
+offers two buttons: hand it over, or let this desk try anyway. Answering anyway is
+allowed but gets labelled as such on the answer. The point of seven narrow desks is lost
+if any of them will confidently answer anything.
+
+The maps live in `src/lib/desk.ts`: `AGENT_SCOPE` (what a desk accepts) and
+`INTENT_OWNER` (the single desk that owns each request type).
+
 ### The strategy answer is ordered deliberately
 
 How it works, then the research steps, then the backtest, then the verdict. The verdict
@@ -46,8 +76,9 @@ the conclusion.
 npx tsx scripts/intent-check.ts   # or: npm run check:intent
 ```
 
-30 assertions covering intent routing, fallback behaviour, rupee-amount parsing
-(lakh / crore / k) and ticker extraction.
+46 assertions covering intent routing, fallback behaviour, rupee-amount parsing
+(lakh / crore / k), ticker extraction, and the specialist maps - every intent has exactly
+one owning desk, and every owner accepts its own work.
 
 ### Where to plug in real logic
 
@@ -80,7 +111,7 @@ Requires Node 18 or newer.
 
 | # | Module | What is in it |
 | --- | --- | --- |
-| 00 | **Ask** | The universal prompt bar. Classifies a plain-English request into one of nine intents and mounts a purpose-built answer surface. Detailed above. |
+| 00 | **Build** | The universal prompt bar. Classifies a plain-English request into one of nine intents and mounts a purpose-built answer surface. Runs on Auto or with one of seven specialists pinned. Detailed above. |
 | 01 | **Markets** | 16 NSE instruments with daily and weekly history. Line and candlestick charts with 20/50 DMA overlays, volume, hover OHLC crosshair. Watchlist, sector heat, movers, and a morning desk note feed. |
 | 02 | **AI Agents** | Three views. **Build** compiles a plain-language description into an explicit rule set, position sizing model, and a list of what you left ambiguous. **Specialists** is a gallery of seven narrow agents with full briefs. **Which agent?** routes you to the right specialist from three questions. |
 | 03 | **Strategies** | Saved strategies with equity curves, calendar returns, drawdown profile, and the backtester's caveats attached to every one of them. |
