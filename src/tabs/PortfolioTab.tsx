@@ -8,7 +8,7 @@ import s from './PortfolioTab.module.css';
 
 type SortKey = 'value' | 'pnl' | 'day';
 
-export function PortfolioTab({ onGoAgents }: { onGoAgents: () => void }) {
+export function PortfolioTab({ onGoBuild }: { onGoBuild: () => void }) {
   const [sortKey, setSortKey] = useState<SortKey>('value');
   const [hoverSlice, setHoverSlice] = useState<number | null>(null);
 
@@ -22,7 +22,7 @@ export function PortfolioTab({ onGoAgents }: { onGoAgents: () => void }) {
   return (
     <div className={s.tab}>
       <SectionHead
-        no="05"
+        no="04"
         title="Portfolio"
         lede={
           <>
@@ -154,8 +154,8 @@ export function PortfolioTab({ onGoAgents }: { onGoAgents: () => void }) {
             ))}
           </ul>
           <div className={s.findingsFoot}>
-            <Button size="sm" variant="ghost" onClick={onGoAgents}>
-              Re-run the auditor
+            <Button size="sm" variant="ghost" onClick={onGoBuild}>
+              Ask the risk auditor &rarr;
             </Button>
           </div>
         </Panel>

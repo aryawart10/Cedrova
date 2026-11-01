@@ -8,13 +8,13 @@ import s from './StrategiesTab.module.css';
 type Props = {
   focus: string | null;
   onFocus: (id: string | null) => void;
-  onGoAgents: () => void;
+  onGoBuild: () => void;
   onGoBrokers: () => void;
 };
 
 type Filter = 'all' | 'live' | 'paper' | 'draft' | 'retired';
 
-export function StrategiesTab({ focus, onFocus, onGoAgents, onGoBrokers }: Props) {
+export function StrategiesTab({ focus, onFocus, onGoBuild, onGoBrokers }: Props) {
   const [filter, setFilter] = useState<Filter>('all');
   const shown = filter === 'all' ? STRATEGIES : STRATEGIES.filter((x) => x.status === filter);
   const selected = focus ? STRATEGIES.find((x) => x.id === focus) : null;
@@ -27,7 +27,7 @@ export function StrategiesTab({ focus, onFocus, onGoAgents, onGoBrokers }: Props
   return (
     <div className={s.tab}>
       <SectionHead
-        no="03"
+        no="02"
         title="Strategies"
         lede={
           <>
@@ -67,7 +67,7 @@ export function StrategiesTab({ focus, onFocus, onGoAgents, onGoBrokers }: Props
             <p className={s.ctaText}>
               Need another one? The builder writes the rules, the backtester tries to break them.
             </p>
-            <Button variant="solid" onClick={onGoAgents}>
+            <Button variant="solid" onClick={onGoBuild}>
               Open the strategy builder
             </Button>
           </div>

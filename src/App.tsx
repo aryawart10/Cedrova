@@ -3,8 +3,8 @@ import { Brand } from './components/Brand';
 import { TickerTape } from './components/TickerTape';
 import { CommandPalette, buildCommands } from './components/CommandPalette';
 import { AskTab } from './tabs/AskTab';
+import type { BuildEntry } from './tabs/AskTab';
 import { MarketsTab } from './tabs/MarketsTab';
-import { AgentsTab } from './tabs/AgentsTab';
 import { StrategiesTab } from './tabs/StrategiesTab';
 import { BrokersTab } from './tabs/BrokersTab';
 import { PortfolioTab } from './tabs/PortfolioTab';
@@ -13,15 +13,14 @@ import { marketSession, timeLabel } from './lib/format';
 import type { AgentId } from './data/agents';
 import s from './App.module.css';
 
-export type ModuleId = 'build' | 'markets' | 'agents' | 'strategies' | 'brokers' | 'portfolio';
+export type ModuleId = 'build' | 'markets' | 'strategies' | 'brokers' | 'portfolio';
 
 const MODULES: { id: ModuleId; label: string; no: string }[] = [
   { id: 'build', label: 'Build', no: '00' },
   { id: 'markets', label: 'Markets', no: '01' },
-  { id: 'agents', label: 'AI Agents', no: '02' },
-  { id: 'strategies', label: 'Strategies', no: '03' },
-  { id: 'brokers', label: 'Brokers', no: '04' },
-  { id: 'portfolio', label: 'Portfolio', no: '05' },
+  { id: 'strategies', label: 'Strategies', no: '02' },
+  { id: 'brokers', label: 'Brokers', no: '03' },
+  { id: 'portfolio', label: 'Portfolio', no: '04' },
 ];
 
 type Theme = 'paper' | 'ink';
@@ -32,7 +31,7 @@ export default function App() {
   );
   const [module, setModule] = useState<ModuleId>('build');
   const [symbol, setSymbol] = useState('RELIANCE');
-  const [focusAgent, setFocusAgent] = useState<AgentId | null>(null);
+  const [buildEntry, setBuildEntry] = useState<BuildEntry | null>(null);
   const [focusStrategy, setFocusStrategy] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [clock, setClock] = useState(() => new Date());
@@ -74,8 +73,8 @@ export default function App() {
           goModule('markets');
         },
         openAgent: (id) => {
-          setFocusAgent(id as AgentId);
-          goModule('agents');
+          setBuildEntry({ kind: 'brief', agent: id as AgentId });
+          goModule('build');
         },
         openStrategy: (id) => {
           setFocusStrategy(id);
@@ -135,25 +134,47 @@ export default function App() {
       </header>
 
       <main className={s.main}>
-        {module === 'build' && <AskTab onGoStrategies={() => goModule('strategies')} />}
-        {module === 'markets' && <MarketsTab symbol={symbol} onSymbol={setSymbol} onGoAgents={() => goModule('agents')} />}
-        {module === 'agents' && (
-          <AgentsTab
-            focus={focusAgent}
-            onFocus={setFocusAgent}
+        {module === 'build' && (
+          <AskTab
+            entry={buildEntry}
+            onEntryConsumed={() => setBuildEntry(null)}
             onGoStrategies={() => goModule('strategies')}
+          />
+        )}
+        {module === 'markets' && (
+          <MarketsTab
+            symbol={symbol}
+            onSymbol={setSymbol}
+            onGoBuild={() => {
+              setBuildEntry({
+                kind: 'model',
+                agent: 'equity-research',
+                prompt: `Research on ${symbol}`,
+              });
+              goModule('build');
+            }}
           />
         )}
         {module === 'strategies' && (
           <StrategiesTab
             focus={focusStrategy}
             onFocus={setFocusStrategy}
-            onGoAgents={() => goModule('agents')}
+            onGoBuild={() => {
+              setBuildEntry({ kind: 'studio' });
+              goModule('build');
+            }}
             onGoBrokers={() => goModule('brokers')}
           />
         )}
         {module === 'brokers' && <BrokersTab />}
-        {module === 'portfolio' && <PortfolioTab onGoAgents={() => goModule('agents')} />}
+        {module === 'portfolio' && (
+          <PortfolioTab
+            onGoBuild={() => {
+              setBuildEntry({ kind: 'model', agent: 'risk-audit' });
+              goModule('build');
+            }}
+          />
+        )}
       </main>
 
       <footer className={s.status} aria-label="System status">

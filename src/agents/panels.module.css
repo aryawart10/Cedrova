@@ -847,3 +847,9 @@
     transform: scale(0.82);
   }
 }
+
+.detailActions {
+  display: flex;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+}

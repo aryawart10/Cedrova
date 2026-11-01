@@ -33,14 +33,14 @@ Nine intents are recognised:
 Anything with no trading intent falls through to a state that shows the recognised
 shapes rather than guessing a desk.
 
-### Changing the model: Auto, or pin a specialist
+### Changing the model: Auto, or one of seven specialists
 
-The bar runs in two modes, picked from the **Model** roster above the input.
+The bar runs in two modes, picked from the **Model** dropdown above the input.
 
 **Auto** (the default) classifies the prompt and hands it to whichever desk owns that
 kind of request.
 
-**Pinned** puts one of the seven specialists in charge of every prompt. The hero copy,
+**A specialist** puts one of seven named models in charge of every prompt. The hero copy,
 the example prompts and the live routing hint all change to that desk, and the answer is
 attributed to it by name. Each specialist accepts only the request types in its remit:
 
@@ -62,6 +62,22 @@ if any of them will confidently answer anything.
 
 The maps live in `src/lib/desk.ts`: `AGENT_SCOPE` (what a desk accepts) and
 `INTENT_OWNER` (the single desk that owns each request type).
+
+### Everything about the agents lives here too
+
+There used to be a separate **AI Agents** module. It is gone: a tab whose only job was to
+describe the models you cannot reach from the place you are working is a navigation tax.
+All of it now mounts as a panel over the bar, reachable from the Model dropdown:
+
+| Panel | Opened from | What it is |
+| --- | --- | --- |
+| **Specialists** | "Read the full briefs" | The seven-card gallery. Each card opens a full brief: skills, what it consumes and produces, what it is grounded on, and a canned console showing the shape of an answer. Every card and brief has a **Use this model** button that pins it and drops you back at the bar. |
+| **Which model do I need?** | "Which one do I need?" | Three questions (goal, horizon, what would change your mind), then a weighted recommendation and a full ranking. |
+| **Rule builder** | "Open the rule builder", under the bar | The form-driven strategy compiler: intent, universe, signals, risk and rebalance pickers, compiled into rules, a sizing model, an equity curve, and a list of what you left ambiguous. |
+
+The components are in `src/agents/panels.tsx`. Deep links still work: pick an agent from
+the command palette, or follow "Ask Equity Research about RELIANCE" from Markets, and you
+land on that agent's brief inside module 00.
 
 ### The strategy answer is ordered deliberately
 
@@ -107,16 +123,15 @@ Requires Node 18 or newer.
 
 ---
 
-## The six modules
+## The five modules
 
 | # | Module | What is in it |
 | --- | --- | --- |
-| 00 | **Build** | The universal prompt bar. Classifies a plain-English request into one of nine intents and mounts a purpose-built answer surface. Runs on Auto or with one of seven specialists pinned. Detailed above. |
+| 00 | **Build** | The universal prompt bar. Classifies a plain-English request into one of nine intents and mounts a purpose-built answer surface. Runs on Auto or as one of seven specialist models, and holds the specialist gallery, briefs, matcher and rule builder. Detailed above. |
 | 01 | **Markets** | 16 NSE instruments with daily and weekly history. Line and candlestick charts with 20/50 DMA overlays, volume, hover OHLC crosshair. Watchlist, sector heat, movers, and a morning desk note feed. |
-| 02 | **AI Agents** | Three views. **Build** compiles a plain-language description into an explicit rule set, position sizing model, and a list of what you left ambiguous. **Specialists** is a gallery of seven narrow agents with full briefs. **Which agent?** routes you to the right specialist from three questions. |
-| 03 | **Strategies** | Saved strategies with equity curves, calendar returns, drawdown profile, and the backtester's caveats attached to every one of them. |
-| 04 | **Brokers** | Zerodha, Groww, Upstox, Angel One, Dhan, Fyers and ICICI Direct adapters. Per-broker capability matrix (including what each one *cannot* do), a simulated connection stepper, and an order log. |
-| 05 | **Portfolio** | Holdings across all connected accounts treated as one book. Sector allocation ring, risk findings from the auditor agent, and a stress replay of five historical drawdowns over today's weights. |
+| 02 | **Strategies** | Saved strategies with equity curves, calendar returns, drawdown profile, and the backtester's caveats attached to every one of them. |
+| 03 | **Brokers** | Zerodha, Groww, Upstox, Angel One, Dhan, Fyers and ICICI Direct adapters. Per-broker capability matrix (including what each one *cannot* do), a simulated connection stepper, and an order log. |
+| 04 | **Portfolio** | Holdings across all connected accounts treated as one book. Sector allocation ring, risk findings from the auditor agent, and a stress replay of five historical drawdowns over today's weights. |
 
 Press <kbd>⌘K</kbd> (or <kbd>Ctrl</kbd>+<kbd>K</kbd>) anywhere for the command palette:
 jump to a module, symbol, agent, strategy or broker.
@@ -184,7 +199,7 @@ The seams are deliberate:
   Everything downstream consumes the `Candle` and `Quote` types, so nothing else changes.
 - **Brokers** — `src/data/brokers.ts` already describes each adapter's real auth model and
   capability gaps. `BrokerDetail`'s `connect()` is where an OAuth redirect would go.
-- **Agents** — `makeSpec()` in `src/tabs/AgentsTab.tsx` is a deterministic stand-in for a
+- **Agents** — `makeSpec()` in `src/agents/panels.tsx` is a deterministic stand-in for a
   model call. It returns the shape a real response should take, including the ambiguity list.
 - **Portfolio** — `holdingRows()` derives everything from `HOLDINGS`; point that at broker
   holdings and the summary, allocation ring and risk table follow.

@@ -14,9 +14,9 @@ import {
 import { compactINR, compactQty, money, num, pct } from '../lib/format';
 import s from './MarketsTab.module.css';
 
-type Props = { symbol: string; onSymbol: (s: string) => void; onGoAgents: () => void };
+type Props = { symbol: string; onSymbol: (s: string) => void; onGoBuild: () => void };
 
-export function MarketsTab({ symbol, onSymbol, onGoAgents }: Props) {
+export function MarketsTab({ symbol, onSymbol, onGoBuild }: Props) {
   const [tf, setTf] = useState<TimeframeId>('1Y');
   const [mode, setMode] = useState<'area' | 'candle'>('area');
   const [sma20, setSma20] = useState(true);
@@ -173,7 +173,7 @@ export function MarketsTab({ symbol, onSymbol, onGoAgents }: Props) {
             <span>
               Hover the plot for OHLC. {candles.length} bars, {tf === '5Y' ? 'weekly' : 'daily'} resolution.
             </span>
-            <Button size="sm" variant="ghost" onClick={onGoAgents}>
+            <Button size="sm" variant="ghost" onClick={onGoBuild}>
               Ask Equity Research about {symbol} &rarr;
             </Button>
           </div>

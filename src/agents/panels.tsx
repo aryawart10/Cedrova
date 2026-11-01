@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { EquityCurve } from '../components/EquityCurve';
-import { Button, Chip, Empty, Panel, SectionHead, Segmented, Stat, Tag } from '../components/ui';
+import { Button, Chip, Empty, Panel, Stat, Tag } from '../components/ui';
 import {
   AGENTS,
   BUILD_EXAMPLES,
@@ -16,59 +16,21 @@ import {
 } from '../data/agents';
 import { buildEquityCurve, maxDrawdown, seedFrom, rng } from '../lib/series';
 import { pct } from '../lib/format';
-import s from './AgentsTab.module.css';
+import s from './panels.module.css';
 
-type View = 'build' | 'specialists' | 'match';
-type Props = { focus: AgentId | null; onFocus: (id: AgentId | null) => void; onGoStrategies: () => void };
+/* ──────────────────────────────────────────
+   Agent panels.
 
-export function AgentsTab({ focus, onFocus, onGoStrategies }: Props) {
-  const [view, setView] = useState<View>(focus ? 'specialists' : 'build');
+   These were module 02 until the prompt bar absorbed it. There is no
+   reason to make someone leave the place where they are working to
+   read an agent's brief or to compile a rule set, so all four
+   surfaces now mount inside module 00:
 
-  useEffect(() => {
-    if (focus) setView('specialists');
-  }, [focus]);
-
-  return (
-    <div className={s.tab}>
-      <SectionHead
-        no="02"
-        title="AI Agents"
-        lede={
-          <>
-            Two ways in. Describe what you want and let the builder compile it into rules, or hand the
-            job to a specialist that already knows the shape of the problem.
-          </>
-        }
-        aside={
-          <Segmented
-            label="Agent view"
-            value={view}
-            onChange={(v) => {
-              setView(v);
-              if (v !== 'specialists') onFocus(null);
-            }}
-            options={[
-              { id: 'build', label: 'Build' },
-              { id: 'specialists', label: 'Specialists' },
-              { id: 'match', label: 'Which agent?' },
-            ]}
-          />
-        }
-      />
-
-      {view === 'build' && <BuildStudio onGoStrategies={onGoStrategies} />}
-      {view === 'specialists' && <Specialists focus={focus} onFocus={onFocus} />}
-      {view === 'match' && (
-        <Matcher
-          onPick={(id) => {
-            onFocus(id);
-            setView('specialists');
-          }}
-        />
-      )}
-    </div>
-  );
-}
+   - BuildStudio  structured rule compiler (the form, not the bar)
+   - Specialists  the seven-card gallery
+   - AgentDetail  one agent's full brief, with its canned console
+   - Matcher      three questions, then a ranked recommendation
+   ──────────────────────────────────────────── */
 
 /* ══════════════════════════════════════════════════════════
    BUILD STUDIO
@@ -94,7 +56,7 @@ const COMPILE_STEPS = [
   'Running a fast in-sample pass',
 ];
 
-function BuildStudio({ onGoStrategies }: { onGoStrategies: () => void }) {
+export function BuildStudio({ onGoStrategies }: { onGoStrategies: () => void }) {
   const [intent, setIntent] = useState(BUILD_EXAMPLES[0]);
   const [universe, setUniverse] = useState('nifty100');
   const [signals, setSignals] = useState<string[]>(['momentum']);
@@ -405,10 +367,22 @@ function makeSpec(input: {
    SPECIALISTS
    ══════════════════════════════════════════════════════════ */
 
-function Specialists({ focus, onFocus }: { focus: AgentId | null; onFocus: (id: AgentId | null) => void }) {
+export function Specialists({
+  focus,
+  onFocus,
+  onUse,
+  active,
+}: {
+  focus: AgentId | null;
+  onFocus: (id: AgentId | null) => void;
+  /** Pin this specialist as the active model in the prompt bar. */
+  onUse?: (id: AgentId) => void;
+  active?: AgentId | null;
+}) {
   const selected = focus ? agentById(focus) : null;
 
-  if (selected) return <AgentDetail agent={selected} onBack={() => onFocus(null)} />;
+  if (selected)
+    return <AgentDetail agent={selected} onBack={() => onFocus(null)} onUse={onUse} active={active} />;
 
   return (
     <>
@@ -444,8 +418,13 @@ function Specialists({ focus, onFocus }: { focus: AgentId | null; onFocus: (id: 
               <Button size="sm" variant="ghost" onClick={() => onFocus(a.id)}>
                 Open brief
               </Button>
-              <Button size="sm" variant="quiet" disabled={a.status === 'waitlist'}>
-                {a.status === 'waitlist' ? 'Join waitlist' : 'Start a run'}
+              <Button
+                size="sm"
+                variant="quiet"
+                disabled={a.status === 'waitlist'}
+                onClick={() => onUse?.(a.id)}
+              >
+                {a.status === 'waitlist' ? 'Join waitlist' : active === a.id ? 'In use' : 'Use this model'}
               </Button>
             </div>
           </article>
@@ -465,7 +444,17 @@ function StatusDot({ status }: { status: Agent['status'] }) {
   );
 }
 
-function AgentDetail({ agent, onBack }: { agent: Agent; onBack: () => void }) {
+export function AgentDetail({
+  agent,
+  onBack,
+  onUse,
+  active,
+}: {
+  agent: Agent;
+  onBack: () => void;
+  onUse?: (id: AgentId) => void;
+  active?: AgentId | null;
+}) {
   const [sent, setSent] = useState<string | null>(null);
   const [typed, setTyped] = useState('');
 
@@ -497,6 +486,17 @@ function AgentDetail({ agent, onBack }: { agent: Agent; onBack: () => void }) {
           <h3 className={`u-display ${s.detailName}`}>{agent.name}</h3>
           <p className={s.detailPitch}>{agent.pitch}</p>
           <p className={s.detailAbout}>{agent.about}</p>
+          {onUse && agent.status !== 'waitlist' ? (
+            <div className={s.detailActions}>
+              <Button
+                variant={active === agent.id ? 'quiet' : 'solid'}
+                disabled={active === agent.id}
+                onClick={() => onUse(agent.id)}
+              >
+                {active === agent.id ? 'Already your model' : 'Use as my model'}
+              </Button>
+            </div>
+          ) : null}
         </div>
         <dl className={s.detailStats}>
           <div>
@@ -595,7 +595,7 @@ function canned(agent: Agent, _prompt: string) {
    MATCHER
    ══════════════════════════════════════════════════════════ */
 
-function Matcher({ onPick }: { onPick: (id: AgentId) => void }) {
+export function Matcher({ onPick }: { onPick: (id: AgentId) => void }) {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const answered = PICKER.filter((q) => answers[q.id] != null).length;
   const done = answered === PICKER.length;
@@ -668,7 +668,7 @@ function Matcher({ onPick }: { onPick: (id: AgentId) => void }) {
                 {ranked.map(({ agent, score }) => {
                   const share = score / (top.score || 1);
                   return (
-                    <li key={agent.id} className={s.rankRow}>
+                    <li key={agent.id}>
                       <button className={s.rankBtn} onClick={() => onPick(agent.id)}>
                         <span className={s.rankName}>{agent.name}</span>
                         <span className={s.rankTrack}>

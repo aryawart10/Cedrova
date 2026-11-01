@@ -27,8 +27,8 @@ export function buildCommands(opts: {
   toggleTheme: () => void;
 }): Command[] {
   const modules = [
+    { id: 'build', label: 'Build' },
     { id: 'markets', label: 'Markets' },
-    { id: 'agents', label: 'AI Agents' },
     { id: 'strategies', label: 'Strategies' },
     { id: 'brokers', label: 'Brokers' },
     { id: 'portfolio', label: 'Portfolio' },

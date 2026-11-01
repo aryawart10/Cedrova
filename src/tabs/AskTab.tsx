@@ -16,6 +16,7 @@ import {
 import { AGENTS, agentById } from '../data/agents';
 import type { AgentId } from '../data/agents';
 import { AGENT_SCOPE, inScope, ownerOf } from '../lib/desk';
+import { BuildStudio, Matcher, Specialists } from '../agents/panels';
 import { SectionHead, Tag } from '../components/ui';
 import s from './AskTab.module.css';
 
@@ -74,6 +75,33 @@ type Turn = {
 
 const SYMBOLS = UNIVERSE.map((i) => i.symbol);
 
+/* Side surfaces that used to be module 02. They mount here, over the
+   bar, and every one of them has a single way back. */
+type PanelId = 'none' | 'roster' | 'match' | 'studio';
+
+/* How another module asks module 00 to open on something specific.
+   Markets wants a brief, Strategies wants the form, Portfolio wants a
+   model already pinned. One prop instead of three. */
+export type BuildEntry =
+  | { kind: 'brief'; agent: AgentId }
+  | { kind: 'model'; agent: AgentId; prompt?: string }
+  | { kind: 'studio' };
+
+const PANEL_TITLE: Record<Exclude<PanelId, 'none'>, string> = {
+  roster: 'Specialists',
+  match: 'Which model do I need?',
+  studio: 'Rule builder',
+};
+
+const PANEL_LEDE: Record<Exclude<PanelId, 'none'>, string> = {
+  roster:
+    'Seven models with a narrow brief each. Narrow is the point: a desk that will only argue about backtest validity is worth more than one that will cheerfully answer anything. Pick one here and it takes over the bar.',
+  match:
+    'Three questions: your goal, your horizon, and what would change your mind. Those decide which specialist is worth your time.',
+  studio:
+    'The same compiler the bar uses, driven by a form instead of a sentence. Describe the idea, set the universe and risk, and read back the rules plus whatever you left ambiguous.',
+};
+
 /** Desk chatter shown while an answer is being prepared. */
 function deskTrace(match: Match | null, agent: AgentId | null): string[] {
   const steps = intentTrace(match);
@@ -105,13 +133,43 @@ function intentTrace(match: Match | null): string[] {
   }
 }
 
-export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
+export function AskTab({
+  entry,
+  onEntryConsumed,
+  onGoStrategies,
+}: {
+  /** Deep link from the command palette or another module. */
+  entry: BuildEntry | null;
+  onEntryConsumed: () => void;
+  onGoStrategies: () => void;
+}) {
   const [draft, setDraft] = useState('');
   const [turns, setTurns] = useState<Turn[]>([]);
   const [agent, setAgent] = useState<AgentId | null>(null);
+  const [panel, setPanel] = useState<PanelId>('none');
+  const [brief, setBrief] = useState<AgentId | null>(null);
   const nextId = useRef(1);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  /* Deep links land here now that module 02 is gone. Consume the entry
+     so going back to the bar does not immediately re-open the panel. */
+  useEffect(() => {
+    if (!entry) return;
+    if (entry.kind === 'brief') {
+      setBrief(entry.agent);
+      setPanel('roster');
+    } else if (entry.kind === 'model') {
+      setAgent(entry.agent);
+      setPanel('none');
+      if (entry.prompt) setDraft(entry.prompt);
+    } else {
+      setPanel('studio');
+    }
+    onEntryConsumed();
+    // onEntryConsumed is stable; re-running on identity would loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entry]);
 
   const submit = (text: string) => {
     const prompt = text.trim();
@@ -144,12 +202,53 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
     patch(id, { agent: to });
   };
 
+  const closePanel = () => {
+    setPanel('none');
+    setBrief(null);
+  };
+
+  /** Pin a specialist and get back to the bar, which is the point. */
+  const useModel = (id: AgentId | null) => {
+    setAgent(id);
+    setBrief(null);
+    setPanel('none');
+  };
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [turns]);
 
   const empty = turns.length === 0;
   const pinned = agent ? agentById(agent) : null;
+
+  if (panel !== 'none') {
+    return (
+      <div className={s.wrap}>
+        <SectionHead
+          no="00"
+          title={PANEL_TITLE[panel]}
+          lede={PANEL_LEDE[panel]}
+          aside={
+            <button className={s.clearBtn} onClick={closePanel}>
+              &larr; Back to the bar
+            </button>
+          }
+        />
+        {panel === 'roster' && (
+          <Specialists focus={brief} onFocus={setBrief} onUse={useModel} active={agent} />
+        )}
+        {panel === 'match' && (
+          <Matcher
+            onPick={(id) => {
+              setBrief(id);
+              setPanel('roster');
+            }}
+          />
+        )}
+        {panel === 'studio' && <BuildStudio onGoStrategies={onGoStrategies} />}
+      </div>
+    );
+  }
 
   return (
     <div className={`${s.wrap} ${empty ? s.wrapEmpty : ''}`}>
@@ -162,10 +261,15 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
           <p className={s.heroLede}>
             {pinned
               ? pinned.about
-              : 'One bar for everything: build a strategy, test a signal, find out why a stock fell, check whether you could actually trade it. Leave it on Auto and the right desk picks it up, or pin a specialist below.'}
+              : 'One bar for everything: build a strategy, test a signal, find out why a stock fell, check whether you could actually trade it. Leave the model on Auto and the right desk picks it up, or choose a specialist.'}
           </p>
 
-          <Roster active={agent} onPick={setAgent} />
+          <ModelPicker
+            active={agent}
+            onPick={setAgent}
+            onBrowse={() => setPanel('roster')}
+            onMatch={() => setPanel('match')}
+          />
 
           <PromptBar
             ref={inputRef}
@@ -180,6 +284,14 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
                 : 'I want to build a mean reversion strategy on NIFTY 100 stocks\u2026'
             }
           />
+
+          <p className={s.altEntry}>
+            Prefer knobs to prose?{' '}
+            <button className={s.altLink} onClick={() => setPanel('studio')}>
+              Open the rule builder
+            </button>{' '}
+            and compile a strategy from a form instead.
+          </p>
 
           {agent && pinned ? (
             <div className={s.suggests}>
@@ -205,7 +317,16 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
                   ))}
                 </ul>
                 <p className={s.scopeNote}>
-                  Anything else and it will tell you which desk owns it instead of guessing.
+                  Anything else and it will tell you which desk owns it instead of guessing.{' '}
+                  <button
+                    className={s.altLink}
+                    onClick={() => {
+                      setBrief(agent);
+                      setPanel('roster');
+                    }}
+                  >
+                    Read the full brief
+                  </button>
                 </p>
               </div>
             </div>
@@ -262,7 +383,13 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
           </div>
 
           <div className={s.dock}>
-            <Roster active={agent} onPick={setAgent} compact />
+            <ModelPicker
+              active={agent}
+              onPick={setAgent}
+              onBrowse={() => setPanel('roster')}
+              onMatch={() => setPanel('match')}
+              compact
+            />
             <PromptBar
               value={draft}
               onChange={setDraft}
@@ -277,54 +404,142 @@ export function AskTab({ onGoStrategies }: { onGoStrategies: () => void }) {
   );
 }
 
-/* ── The desk roster: Auto, or pin one specialist ───────── */
+/* ── Model picker: Auto by default, or one of the seven ──── */
 
-function Roster({
+function ModelPicker({
   active,
   onPick,
+  onBrowse,
+  onMatch,
   compact,
 }: {
   active: AgentId | null;
   onPick: (id: AgentId | null) => void;
+  onBrowse: () => void;
+  onMatch: () => void;
   compact?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (!boxRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const a = active ? agentById(active) : null;
+
   return (
-    <div className={`${s.roster} ${compact ? s.rosterCompact : ''}`}>
-      <p className={s.rosterLabel} id="roster-label">
+    <div className={`${s.picker} ${compact ? s.pickerCompact : ''}`} ref={boxRef}>
+      <p className={s.pickerLabel} aria-hidden>
         Model
       </p>
-      <div className={s.rosterRow} role="radiogroup" aria-labelledby="roster-label">
-        <button
-          type="button"
-          role="radio"
-          aria-checked={active === null}
-          className={`${s.pill} ${active === null ? s.pillOn : ''}`}
-          onClick={() => onPick(null)}
-        >
-          <span className={s.pillNo}>00</span>
-          Auto
-          <span className={s.pillSub}>route for me</span>
-        </button>
-        {AGENTS.map((a) => {
-          const off = a.status === 'waitlist';
-          return (
+      <button
+        type="button"
+        className={s.trigger}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`Model: ${a ? a.name : 'Auto'}. Change model.`}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className={s.triggerNo}>{a ? a.no : '00'}</span>
+        <span className={s.triggerMain}>
+          <span className={s.triggerName}>{a ? a.name : 'Auto'}</span>
+          <span className={s.triggerSub}>{a ? a.discipline : 'routes every prompt for me'}</span>
+        </span>
+        <span className={`${s.chev} ${open ? s.chevOpen : ''}`} aria-hidden>
+          &#9662;
+        </span>
+      </button>
+
+      {open ? (
+        <div className={s.menu} role="menu" aria-label="Choose a model">
+          <button
+            type="button"
+            role="menuitemradio"
+            aria-checked={active === null}
+            className={`${s.item} ${active === null ? s.itemOn : ''}`}
+            onClick={() => {
+              onPick(null);
+              setOpen(false);
+            }}
+          >
+            <span className={s.itemNo}>00</span>
+            <span className={s.itemMain}>
+              <span className={s.itemName}>Auto</span>
+              <span className={s.itemPitch}>
+                Classifies the prompt and hands it to whichever desk owns it. The default.
+              </span>
+            </span>
+          </button>
+
+          <p className={s.menuLabel}>Specialists</p>
+
+          {AGENTS.map((ag) => {
+            const off = ag.status === 'waitlist';
+            return (
+              <button
+                key={ag.id}
+                type="button"
+                role="menuitemradio"
+                aria-checked={active === ag.id}
+                disabled={off}
+                className={`${s.item} ${active === ag.id ? s.itemOn : ''} ${off ? s.itemOff : ''}`}
+                onClick={() => {
+                  onPick(ag.id);
+                  setOpen(false);
+                }}
+              >
+                <span className={s.itemNo}>{ag.no}</span>
+                <span className={s.itemMain}>
+                  <span className={s.itemName}>
+                    {ag.name}
+                    {ag.status !== 'live' ? <span className={s.itemFlag}>{ag.status}</span> : null}
+                  </span>
+                  <span className={s.itemPitch}>{ag.pitch}</span>
+                  <span className={s.itemScope}>
+                    {AGENT_SCOPE[ag.id].map((i) => INTENT_LABEL[i]).join(' \u00B7 ')}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+
+          <div className={s.menuFoot}>
             <button
-              key={a.id}
               type="button"
-              role="radio"
-              aria-checked={active === a.id}
-              disabled={off}
-              title={off ? `${a.name} is on the waitlist and not wired up in this prototype` : a.pitch}
-              className={`${s.pill} ${active === a.id ? s.pillOn : ''} ${off ? s.pillOff : ''}`}
-              onClick={() => onPick(a.id)}
+              className={s.footBtn}
+              onClick={() => {
+                setOpen(false);
+                onBrowse();
+              }}
             >
-              <span className={s.pillNo}>{a.no}</span>
-              {a.name}
-              <span className={s.pillSub}>{off ? 'waitlist' : a.discipline}</span>
+              Read the full briefs
             </button>
-          );
-        })}
-      </div>
+            <button
+              type="button"
+              className={s.footBtn}
+              onClick={() => {
+                setOpen(false);
+                onMatch();
+              }}
+            >
+              Which one do I need?
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

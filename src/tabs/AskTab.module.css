@@ -346,20 +346,23 @@
   }
 }
 
-/* ── Desk roster: Auto, or pin one specialist ─────────────────── */
+/* ── Model picker: a dropdown, Auto by default ─────────── */
 
-.roster {
+.picker {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
   margin: var(--s-5) 0 var(--s-4);
+  max-width: 30rem;
 }
 
-.rosterCompact {
+.pickerCompact {
   margin: 0 0 var(--s-3);
+  max-width: 24rem;
 }
 
-.rosterLabel {
+.pickerLabel {
   font: var(--t-eyebrow);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -367,62 +370,273 @@
   margin: 0;
 }
 
-.rosterRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2);
+.pickerCompact .pickerLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 
-.pill {
+.trigger {
   display: flex;
-  align-items: baseline;
-  gap: 0.5ch;
-  padding: var(--s-2) var(--s-3);
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  padding: var(--s-3) var(--s-4);
   border: 1px solid var(--rule);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: var(--surface);
-  color: var(--text-soft);
-  font: var(--t-small);
+  color: var(--text);
+  text-align: left;
   cursor: pointer;
   transition:
     border-color var(--dur-fast) var(--ease-out-quart),
-    background var(--dur-fast) var(--ease-out-quart),
-    color var(--dur-fast) var(--ease-out-quart);
+    background var(--dur-fast) var(--ease-out-quart);
 }
 
-.pill:hover:not(:disabled) {
+.trigger:hover {
   border-color: var(--rule-strong);
-  color: var(--text);
 }
 
-.pillOn {
+.trigger[aria-expanded='true'] {
+  border-color: var(--agent);
+  background: var(--agent-wash);
+}
+
+.pickerCompact .trigger {
+  padding: var(--s-2) var(--s-3);
+}
+
+.triggerNo {
+  font: var(--t-micro);
+  font-family: var(--font-mono);
+  color: var(--agent);
+  border: 1px solid var(--agent);
+  border-radius: var(--radius-sm);
+  padding: 0.15em 0.45em;
+  flex: none;
+}
+
+.triggerMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+  min-width: 0;
+  flex: 1;
+}
+
+.triggerName {
+  font: var(--t-small);
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triggerSub {
+  font: var(--t-micro);
+  color: var(--text-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pickerCompact .triggerSub {
+  display: none;
+}
+
+.chev {
+  flex: none;
+  color: var(--text-mute);
+  font-size: 0.7em;
+  transition: transform var(--dur-fast) var(--ease-out-quart);
+}
+
+.chevOpen {
+  transform: rotate(180deg);
+}
+
+/* ── The open menu ────────────────────────────── */
+
+.menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + var(--s-2));
+  left: 0;
+  right: 0;
+  min-width: 26rem;
+  max-height: 26rem;
+  overflow-y: auto;
+  padding: var(--s-2);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  box-shadow: 0 1.5rem 3rem -1rem rgb(0 0 0 / 0.28);
+  animation: menuIn var(--dur-fast) var(--ease-out-quart);
+}
+
+.pickerCompact .menu {
+  top: auto;
+  bottom: calc(100% + var(--s-2));
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.35rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menuLabel {
+  font: var(--t-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin: var(--s-3) 0 var(--s-1);
+  padding: 0 var(--s-2);
+  border-top: 1px solid var(--rule-faint);
+  padding-top: var(--s-3);
+}
+
+.item {
+  display: flex;
+  gap: var(--s-3);
+  width: 100%;
+  padding: var(--s-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out-quart),
+    border-color var(--dur-fast) var(--ease-out-quart);
+}
+
+.item:hover:not(:disabled) {
+  background: var(--surface-sunk);
+}
+
+.item:focus-visible {
+  border-color: var(--agent);
+}
+
+.itemOn {
   background: var(--agent-wash);
   border-color: var(--agent);
-  color: var(--text);
 }
 
-.pillOff {
+.itemOff {
   cursor: not-allowed;
   opacity: 0.45;
 }
 
-.pillNo {
+.itemNo {
+  font: var(--t-micro);
+  font-family: var(--font-mono);
+  color: var(--text-mute);
+  flex: none;
+  padding-top: 0.15em;
+}
+
+.itemOn .itemNo {
+  color: var(--agent);
+}
+
+.itemMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  min-width: 0;
+}
+
+.itemName {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font: var(--t-small);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.itemFlag {
+  font: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-mute);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  padding: 0 0.35em;
+}
+
+.itemPitch {
+  font: var(--t-micro);
+  color: var(--text-soft);
+}
+
+.itemScope {
   font: var(--t-micro);
   font-family: var(--font-mono);
   color: var(--text-mute);
 }
 
-.pillOn .pillNo {
-  color: var(--agent);
+.menuFoot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--rule-faint);
 }
 
-.pillSub {
+.footBtn {
+  flex: 1;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-soft);
   font: var(--t-micro);
-  color: var(--text-mute);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    border-color var(--dur-fast) var(--ease-out-quart),
+    color var(--dur-fast) var(--ease-out-quart);
 }
 
-.rosterCompact .pillSub {
-  display: none;
+.footBtn:hover {
+  border-color: var(--rule-strong);
+  color: var(--text);
+}
+
+/* ── Secondary way in: the form instead of the bar ─────── */
+
+.altEntry {
+  font: var(--t-small);
+  color: var(--text-mute);
+  margin: var(--s-3) 0 0;
+  max-width: var(--measure);
+}
+
+.altLink {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.altLink:hover {
+  color: var(--text);
 }
 
 /* ── Scope list shown when a specialist is pinned ─────────────── */
