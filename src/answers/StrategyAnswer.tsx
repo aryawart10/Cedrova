@@ -250,7 +250,7 @@ export function StrategyAnswer({ capital, onOpenBacktest }: { capital: number; o
                       {ri === 0 && <span className={s.sensRowLabel}>{SENSITIVITY.rowLabel}</span>}
                       {r}
                     </th>
-                    {SENSITIVITY.grid[ri].map((v, ci) => (
+                    {(SENSITIVITY.grid[ri] ?? []).map((v, ci) => (
                       <td
                         key={ci}
                         className={`u-num ${s.sensCell}`}

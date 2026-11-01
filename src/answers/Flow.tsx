@@ -19,8 +19,9 @@ export function ClarifyStep({
   const [risk, setRisk] = useState<number | null>(null);
   const [custom, setCustom] = useState('');
 
-  const effective = capital ?? (custom ? Number(custom.replace(/[^0-9]/g, '')) : null);
-  const ready = !!effective && effective > 0 && risk !== null;
+  const parsed = capital ?? (custom ? Number(custom.replace(/[^0-9]/g, '')) : null);
+  const effective = parsed && parsed > 0 ? parsed : null;
+  const ready = effective !== null && risk !== null;
 
   return (
     <div className={s.answer}>
@@ -84,7 +85,13 @@ export function ClarifyStep({
           )}
         </div>
 
-        <Button variant="solid" onClick={() => ready && onDone(effective!, risk!)} disabled={!ready}>
+        <Button
+          variant="solid"
+          onClick={() => {
+            if (effective !== null && risk !== null) onDone(effective, risk);
+          }}
+          disabled={!ready}
+        >
           Find strategies that fit
         </Button>
       </section>

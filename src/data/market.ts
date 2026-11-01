@@ -74,7 +74,15 @@ export type Quote = {
 };
 
 export function quoteFor(symbol: string): Quote {
-  const inst = UNIVERSE.find((i) => i.symbol === symbol) ?? UNIVERSE[0];
+  const found = UNIVERSE.find((i) => i.symbol === symbol);
+  // Falling back silently means a card labelled with one ticker renders
+  // another company's price. Shout about it in dev instead.
+  if (!found && import.meta.env.DEV) {
+    console.warn(
+      `[alphaOS] quoteFor('${symbol}'): not in UNIVERSE, falling back to ${UNIVERSE[0].symbol}.`,
+    );
+  }
+  const inst = found ?? UNIVERSE[0];
   const s = seriesFor(symbol, '1M');
   const last = s[s.length - 1];
   const prev = s[s.length - 2] ?? last;

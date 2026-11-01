@@ -104,10 +104,10 @@ export const MR_EXAMPLE: { date: string; legs: ExampleLeg[] } = {
   date: '14 Mar 2026',
   legs: [
     { symbol: 'TATAMOTORS', fall: -9.4, entry: 712.4, exit: 758.2 },
-    { symbol: 'HINDALCO', fall: -8.1, entry: 618.9, exit: 641.0 },
-    { symbol: 'BAJFINANCE', fall: -7.6, entry: 6842.0, exit: 6701.5 },
-    { symbol: 'TECHM', fall: -7.2, entry: 1402.3, exit: 1455.8 },
-    { symbol: 'ADANIPORTS', fall: -6.9, entry: 1188.0, exit: 1149.2 },
+    { symbol: 'ADANIENT', fall: -8.1, entry: 2618.9, exit: 2712.4 },
+    { symbol: 'ICICIBANK', fall: -7.6, entry: 1284.0, exit: 1258.6 },
+    { symbol: 'INFY', fall: -7.2, entry: 1402.3, exit: 1455.8 },
+    { symbol: 'SUNPHARMA', fall: -6.9, entry: 1188.0, exit: 1149.2 },
   ],
 };
 
@@ -325,23 +325,23 @@ export const NEWS_DIAGNOSIS = [
     tone: 'ok' as const,
   },
   {
-    symbol: 'BAJFINANCE',
+    symbol: 'ICICIBANK',
     fall: -7.6,
     cause: 'Company-specific',
     detail:
-      'RBI flagged concerns on a digital lending product and the company withdrew it. This is a real change to the business, not a mood swing. Falls like this keep falling.',
+      'RBI flagged concerns on a digital lending product and the bank withdrew it. This is a real change to the business, not a mood swing. Falls like this keep falling.',
     tone: 'bad' as const,
   },
   {
-    symbol: 'HINDALCO',
+    symbol: 'ADANIENT',
     fall: -8.1,
     cause: 'Commodity cycle',
     detail:
-      'LME aluminium fell 6% in the same window on Chinese demand data. The stock is doing exactly what its input price did. Mean reversion here is a bet on the commodity, not the company.',
+      'Global coal and freight benchmarks fell together in the same window. The stock is doing what its input prices did. Mean reversion here is a bet on the commodity cycle, not the company.',
     tone: 'warn' as const,
   },
   {
-    symbol: 'TECHM',
+    symbol: 'INFY',
     fall: -7.2,
     cause: 'Market-wide',
     detail:
