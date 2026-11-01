@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Brand } from './components/Brand';
 import { TickerTape } from './components/TickerTape';
 import { CommandPalette, buildCommands } from './components/CommandPalette';
+import { AskTab } from './tabs/AskTab';
 import { MarketsTab } from './tabs/MarketsTab';
 import { AgentsTab } from './tabs/AgentsTab';
 import { StrategiesTab } from './tabs/StrategiesTab';
@@ -12,9 +13,10 @@ import { marketSession, timeLabel } from './lib/format';
 import type { AgentId } from './data/agents';
 import s from './App.module.css';
 
-export type ModuleId = 'markets' | 'agents' | 'strategies' | 'brokers' | 'portfolio';
+export type ModuleId = 'ask' | 'markets' | 'agents' | 'strategies' | 'brokers' | 'portfolio';
 
 const MODULES: { id: ModuleId; label: string; no: string }[] = [
+  { id: 'ask', label: 'Ask', no: '00' },
   { id: 'markets', label: 'Markets', no: '01' },
   { id: 'agents', label: 'AI Agents', no: '02' },
   { id: 'strategies', label: 'Strategies', no: '03' },
@@ -28,7 +30,7 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('alphaos:theme') as Theme) ?? 'paper',
   );
-  const [module, setModule] = useState<ModuleId>('markets');
+  const [module, setModule] = useState<ModuleId>('ask');
   const [symbol, setSymbol] = useState('RELIANCE');
   const [focusAgent, setFocusAgent] = useState<AgentId | null>(null);
   const [focusStrategy, setFocusStrategy] = useState<string | null>(null);
@@ -92,7 +94,7 @@ export default function App() {
     <div className={s.app}>
       <header className={s.header}>
         <div className={s.headerInner}>
-          <button className={s.brandBtn} onClick={() => goModule('markets')} aria-label="alphaOS home">
+          <button className={s.brandBtn} onClick={() => goModule('ask')} aria-label="alphaOS home">
             <Brand />
           </button>
 
@@ -133,6 +135,7 @@ export default function App() {
       </header>
 
       <main className={s.main}>
+        {module === 'ask' && <AskTab onGoStrategies={() => goModule('strategies')} />}
         {module === 'markets' && <MarketsTab symbol={symbol} onSymbol={setSymbol} onGoAgents={() => goModule('agents')} />}
         {module === 'agents' && (
           <AgentsTab

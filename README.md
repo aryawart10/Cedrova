@@ -9,6 +9,53 @@ seeds so the UI is stable and reviewable. Nothing here is investment advice or a
 
 ---
 
+## Module 00 - Ask: the universal prompt bar
+
+The landing surface is a single input that classifies what you typed and mounts a
+purpose-built answer surface. It does not return prose. Each answer shows which desk
+handled it and which phrases in your wording triggered that routing, so the mechanism
+is visible rather than magic.
+
+Nine intents are recognised:
+
+| Intent | Try typing | What you get |
+| --- | --- | --- |
+| `strategy-build` | "I want to build a trading strategy" | Two questions (capital, loss limit), then three ranked ideas, then a full research answer |
+| `market-view` | "I think IT stocks will fall next quarter" | Your view read back, plus three priced ways to express it |
+| `signal-check` | "Does this signal actually work?" | Bucketed forward returns, t-stat, and the cost that eats the edge |
+| `why-fell` | "Why did these stocks fall?" | Per-stock split of company news vs sector vs market-wide |
+| `tradeable` | "Can I actually trade this with 10 lakh?" | Order size against traded volume, modelled slippage, capacity ceiling |
+| `hedge` | "How do I hedge the overnight risk?" | Protective put, collar, or smaller position, each with its trade-off |
+| `place-orders` | "Place the orders across my brokers" | Basket split across Zerodha, Groww and Upstox by margin |
+| `research` | "Research on RELIANCE" | Four findings from the equity desk, with the concentration risk flagged |
+| `backtest` | "Backtest buying the dip in an uptrend" | Same pipeline as `strategy-build` |
+
+Anything with no trading intent falls through to a state that shows the recognised
+shapes rather than guessing a desk.
+
+### The strategy answer is ordered deliberately
+
+How it works, then the research steps, then the backtest, then the verdict. The verdict
+sits last because leading with it invites you to skip the evidence. When a strategy
+fails, the answer says so plainly and shows the one fix that helped without changing
+the conclusion.
+
+### Checking the routing
+
+```bash
+npx tsx scripts/intent-check.ts   # or: npm run check:intent
+```
+
+30 assertions covering intent routing, fallback behaviour, rupee-amount parsing
+(lakh / crore / k) and ticker extraction.
+
+### Where to plug in real logic
+
+- `classify()` in `src/lib/intent.ts` - swap keyword scoring for a model call; the
+  return shape (`id`, `score`, `hits`) is all the UI depends on
+- `src/data/research.ts` - every number rendered by every answer surface
+- `src/answers/` - one component per answer shape, each taking plain props
+
 ## Running it
 
 ```bash
@@ -29,10 +76,11 @@ Requires Node 18 or newer.
 
 ---
 
-## The five modules
+## The six modules
 
 | # | Module | What is in it |
 | --- | --- | --- |
+| 00 | **Ask** | The universal prompt bar. Classifies a plain-English request into one of nine intents and mounts a purpose-built answer surface. Detailed above. |
 | 01 | **Markets** | 16 NSE instruments with daily and weekly history. Line and candlestick charts with 20/50 DMA overlays, volume, hover OHLC crosshair. Watchlist, sector heat, movers, and a morning desk note feed. |
 | 02 | **AI Agents** | Three views. **Build** compiles a plain-language description into an explicit rule set, position sizing model, and a list of what you left ambiguous. **Specialists** is a gallery of seven narrow agents with full briefs. **Which agent?** routes you to the right specialist from three questions. |
 | 03 | **Strategies** | Saved strategies with equity curves, calendar returns, drawdown profile, and the backtester's caveats attached to every one of them. |

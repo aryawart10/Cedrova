@@ -3,12 +3,13 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "alphaOS — an operating system for trading research. AI agents, broker integrations and market charts for Indian equity markets. Front-end only, mock data.",
+  "description": "alphaOS \u2014 an operating system for trading research. AI agents, broker integrations and market charts for Indian equity markets. Front-end only, mock data.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit",
+    "check:intent": "tsx scripts/intent-check.ts"
   },
   "dependencies": {
     "react": "^18.3.1",

@@ -434,3 +434,18 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Local copy of a global keyframe: CSS Modules hashes animation names,
+   so a module referencing a keyframe defined in global.css resolves to
+   a name that was never emitted and the animation silently never runs. */
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
