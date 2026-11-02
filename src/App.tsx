@@ -6,7 +6,7 @@ import { AskTab } from './tabs/AskTab';
 import type { BuildEntry } from './tabs/AskTab';
 import { MarketsTab } from './tabs/MarketsTab';
 import { StrategiesTab } from './tabs/StrategiesTab';
-import { AccountsTab } from './tabs/AccountsTab';
+import { PortfolioTab } from './tabs/PortfolioTab';
 import { AgentsTab } from './tabs/AgentsTab';
 import { SEED_AGENTS } from './data/standing';
 import type { StandingAgent } from './data/standing';
@@ -15,13 +15,13 @@ import { marketSession, timeLabel } from './lib/format';
 import type { AgentId } from './data/agents';
 import s from './App.module.css';
 
-export type ModuleId = 'build' | 'markets' | 'strategies' | 'accounts' | 'agents';
+export type ModuleId = 'build' | 'markets' | 'strategies' | 'portfolio' | 'agents';
 
 const MODULES: { id: ModuleId; label: string; no: string }[] = [
   { id: 'build', label: 'Build', no: '00' },
   { id: 'markets', label: 'Markets', no: '01' },
   { id: 'strategies', label: 'Strategies', no: '02' },
-  { id: 'accounts', label: 'Accounts', no: '03' },
+  { id: 'portfolio', label: 'Portfolio', no: '03' },
   { id: 'agents', label: 'Agents', no: '04' },
 ];
 
@@ -90,7 +90,7 @@ export default function App() {
         },
         openAccount: (id) => {
           setFocusAccount(id);
-          goModule('accounts');
+          goModule('portfolio');
         },
         standing: agents,
         openStanding: (id) => {
@@ -185,7 +185,7 @@ export default function App() {
               setBuildEntry({ kind: 'studio' });
               goModule('build');
             }}
-            onGoAccounts={() => goModule('accounts')}
+            onGoPortfolio={() => goModule('portfolio')}
           />
         )}
         {module === 'agents' && (
@@ -202,8 +202,8 @@ export default function App() {
             }}
           />
         )}
-        {module === 'accounts' && (
-          <AccountsTab
+        {module === 'portfolio' && (
+          <PortfolioTab
             focus={focusAccount}
             onFocus={setFocusAccount}
             onGoBuild={() => {

@@ -1,6 +1,6 @@
 import { quoteFor } from './market';
 
-/** Scope for every figure on the Accounts module. null means all accounts. */
+/** Scope for every figure on the Portfolio module. null means all accounts. */
 export type Scope = string | null;
 
 export type Holding = {

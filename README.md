@@ -132,7 +132,7 @@ Requires Node 18 or newer.
 | 00 | **Build** | The universal prompt bar. Classifies a plain-English request into one of ten intents and mounts a purpose-built answer surface. Runs on Auto or as one of eight specialist models, and holds the specialist gallery, briefs, matcher and rule builder. Detailed above. |
 | 01 | **Markets** | 16 NSE instruments with daily and weekly history. Line and candlestick charts with 20/50 DMA overlays, volume, hover OHLC crosshair. Watchlist, sector heat, movers, and a morning desk note feed. |
 | 02 | **Strategies** | Saved strategies with equity curves, calendar returns, drawdown profile, and the backtester's caveats attached to every one of them. |
-| 03 | **Accounts** | Brokers and holdings in one place. A rail across the top switches the whole page between all accounts and any single broker; everything below &mdash; summary, allocation ring, risk findings, holdings table, stress replay and order log &mdash; is recomputed for that scope. Scoped to one broker it also shows that adapter's connection state and capability matrix, including what it *cannot* do. **Add broker** connects as many of the seven adapters as you want, with a simulated OAuth stepper. |
+| 03 | **Portfolio** | Brokers and holdings in one place. A rail across the top switches the whole page between all accounts and any single broker; everything below &mdash; summary, allocation ring, risk findings, holdings table, stress replay and order log &mdash; is recomputed for that scope. Scoped to one broker it also shows that adapter's connection state and capability matrix, including what it *cannot* do. **Add broker** connects as many of the seven adapters as you want, with a simulated OAuth stepper. |
 
 | 04 | **Agents** | The customer's own standing agents, as opposed to the specialists in module 00. Describe a job in plain English (&ldquo;monitor Reliance for me and let me know on any changes&rdquo;) and it is parsed into a spec you can see and correct: what is being watched, what counts as a change and the number behind each threshold, how often it reports, and the crew of specialists it delegates to. Phrases that fired are shown, and anything the sentence did not say is stated rather than guessed silently. Name it and it starts reporting into its own feed, including explicit nothing-happened entries so a quiet day is visible rather than looking like downtime. |
 
@@ -204,7 +204,7 @@ The seams are deliberate:
 - **Quotes and history** — replace `seriesFor()` and `quoteFor()` in `src/data/market.ts`.
   Everything downstream consumes the `Candle` and `Quote` types, so nothing else changes.
 - **Brokers** — `src/data/brokers.ts` already describes each adapter's real auth model and
-  capability gaps. `useConnect()` in `src/tabs/AccountsTab.tsx` is where an OAuth redirect
+  capability gaps. `useConnect()` in `src/tabs/PortfolioTab.tsx` is where an OAuth redirect
   would go, and `SEED_STATUS` is where live connection state would come from instead.
 - **Agents** — `makeSpec()` in `src/agents/panels.tsx` is a deterministic stand-in for a
   model call. It returns the shape a real response should take, including the ambiguity list.
@@ -215,7 +215,7 @@ The seams are deliberate:
   so a report can only cite a threshold that agent actually holds.
 - **Holdings** — `holdingRows(scope)` derives everything from `HOLDINGS`; point that at broker
   holdings and the summary, allocation ring, risk table and stress replay all follow. Every
-  figure on the Accounts module is computed from it, so a per-broker view can never disagree
+  figure on the Portfolio module is computed from it, so a per-broker view can never disagree
   with the all-accounts view.
 
 ---

@@ -19,7 +19,7 @@ import {
   type Scope,
 } from '../data/portfolio';
 import { compactINR, money, num, pct } from '../lib/format';
-import s from './AccountsTab.module.css';
+import s from './PortfolioTab.module.css';
 
 const CONNECT_STEPS = [
   'Opening broker login in a new window',
@@ -38,7 +38,7 @@ const SEED_STATUS: StatusMap = Object.fromEntries(BROKERS.map((b) => [b.id, b.st
 
 const isLinked = (st: BrokerStatus) => st === 'connected' || st === 'needs-reauth';
 
-export function AccountsTab({
+export function PortfolioTab({
   focus,
   onFocus,
   onGoBuild,
@@ -108,7 +108,7 @@ export function AccountsTab({
     <div className={s.tab}>
       <SectionHead
         no="03"
-        title="Accounts"
+        title="Portfolio"
         lede={
           <>
             Every broker you have connected, and the book they add up to, on one screen. Cedrova does

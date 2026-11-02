@@ -36,7 +36,7 @@ export function buildCommands(opts: {
     { id: 'build', label: 'Build' },
     { id: 'markets', label: 'Markets' },
     { id: 'strategies', label: 'Strategies' },
-    { id: 'accounts', label: 'Accounts' },
+    { id: 'portfolio', label: 'Portfolio' },
     { id: 'agents', label: 'Agents' },
   ];
   return [
