@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Cedrova AI \u2014 an operating system for trading research. AI agents, broker integrations and market charts for Indian equity markets. Front-end only, mock data.",
+  "description": "Cedrova AI — an operating system for trading research. AI agents, broker integrations and market charts for Indian equity markets. Front-end only, mock data.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -19,6 +19,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "tsx": "^4.23.15",
     "typescript": "~5.6.3",
     "vite": "^5.4.11"
   }
