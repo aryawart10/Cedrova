@@ -29,18 +29,19 @@ Nine intents are recognised:
 | `place-orders` | "Place the orders across my brokers" | Basket split across Zerodha, Groww and Upstox by margin |
 | `research` | "Research on RELIANCE" | Four findings from the equity desk, with the concentration risk flagged |
 | `backtest` | "Backtest buying the dip in an uptrend" | Same pipeline as `strategy-build` |
+| `monitor` | "Monitor Reliance and let me know on any changes" | The job as the parser read it, then a handoff to module 04 to name it and switch it on |
 
 Anything with no trading intent falls through to a state that shows the recognised
 shapes rather than guessing a desk.
 
-### Changing the model: Auto, or one of seven specialists
+### Changing the model: Auto, or one of eight specialists
 
 The bar runs in two modes, picked from the **Model** dropdown above the input.
 
 **Auto** (the default) classifies the prompt and hands it to whichever desk owns that
 kind of request.
 
-**A specialist** puts one of seven named models in charge of every prompt. The hero copy,
+**A specialist** puts one of eight named models in charge of every prompt. The hero copy,
 the example prompts and the live routing hint all change to that desk, and the answer is
 attributed to it by name. Each specialist accepts only the request types in its remit:
 
@@ -53,11 +54,12 @@ attributed to it by name. Each specialist accepts only the request types in its 
 | **Portfolio Risk Auditor** | `tradeable`, `hedge` |
 | **Macro & Event Analyst** | `market-view`, `why-fell` |
 | **Screener Composer** | `research` (waitlist, not selectable) |
+| **Market Monitor** | `monitor`, `why-fell` |
 
 Ask a pinned specialist something outside its remit and it does **not** answer. It names
 the request type, says why this desk is the wrong one, names the desk that owns it, and
 offers two buttons: hand it over, or let this desk try anyway. Answering anyway is
-allowed but gets labelled as such on the answer. The point of seven narrow desks is lost
+allowed but gets labelled as such on the answer. The point of eight narrow desks is lost
 if any of them will confidently answer anything.
 
 The maps live in `src/lib/desk.ts`: `AGENT_SCOPE` (what a desk accepts) and
@@ -71,7 +73,7 @@ All of it now mounts as a panel over the bar, reachable from the Model dropdown:
 
 | Panel | Opened from | What it is |
 | --- | --- | --- |
-| **Specialists** | "Read the full briefs" | The seven-card gallery. Each card opens a full brief: skills, what it consumes and produces, what it is grounded on, and a canned console showing the shape of an answer. Every card and brief has a **Use this model** button that pins it and drops you back at the bar. |
+| **Specialists** | "Read the full briefs" | The eight-card gallery. Each card opens a full brief: skills, what it consumes and produces, what it is grounded on, and a canned console showing the shape of an answer. Every card and brief has a **Use this model** button that pins it and drops you back at the bar. |
 | **Which model do I need?** | "Which one do I need?" | Three questions (goal, horizon, what would change your mind), then a weighted recommendation and a full ranking. |
 | **Rule builder** | "Open the rule builder", under the bar | The form-driven strategy compiler: intent, universe, signals, risk and rebalance pickers, compiled into rules, a sizing model, an equity curve, and a list of what you left ambiguous. |
 
@@ -123,17 +125,20 @@ Requires Node 18 or newer.
 
 ---
 
-## The four modules
+## The five modules
 
 | # | Module | What is in it |
 | --- | --- | --- |
-| 00 | **Build** | The universal prompt bar. Classifies a plain-English request into one of nine intents and mounts a purpose-built answer surface. Runs on Auto or as one of seven specialist models, and holds the specialist gallery, briefs, matcher and rule builder. Detailed above. |
+| 00 | **Build** | The universal prompt bar. Classifies a plain-English request into one of ten intents and mounts a purpose-built answer surface. Runs on Auto or as one of eight specialist models, and holds the specialist gallery, briefs, matcher and rule builder. Detailed above. |
 | 01 | **Markets** | 16 NSE instruments with daily and weekly history. Line and candlestick charts with 20/50 DMA overlays, volume, hover OHLC crosshair. Watchlist, sector heat, movers, and a morning desk note feed. |
 | 02 | **Strategies** | Saved strategies with equity curves, calendar returns, drawdown profile, and the backtester's caveats attached to every one of them. |
 | 03 | **Accounts** | Brokers and holdings in one place. A rail across the top switches the whole page between all accounts and any single broker; everything below &mdash; summary, allocation ring, risk findings, holdings table, stress replay and order log &mdash; is recomputed for that scope. Scoped to one broker it also shows that adapter's connection state and capability matrix, including what it *cannot* do. **Add broker** connects as many of the seven adapters as you want, with a simulated OAuth stepper. |
 
+| 04 | **Agents** | The customer's own standing agents, as opposed to the specialists in module 00. Describe a job in plain English (&ldquo;monitor Reliance for me and let me know on any changes&rdquo;) and it is parsed into a spec you can see and correct: what is being watched, what counts as a change and the number behind each threshold, how often it reports, and the crew of specialists it delegates to. Phrases that fired are shown, and anything the sentence did not say is stated rather than guessed silently. Name it and it starts reporting into its own feed, including explicit nothing-happened entries so a quiet day is visible rather than looking like downtime. |
+
 Press <kbd>⌘K</kbd> (or <kbd>Ctrl</kbd>+<kbd>K</kbd>) anywhere for the command palette:
-jump to a module, symbol, agent or strategy, or open one broker's account directly.
+jump to a module, symbol, specialist, standing agent or strategy, or open one broker's
+account directly.
 
 ---
 
@@ -169,10 +174,12 @@ src/
 │   └── useMeasure.ts        ResizeObserver hook so charts render at real pixel sizes
 ├── data/
 │   ├── market.ts            instrument universe, index strip, sector heat, desk notes
-│   ├── agents.ts            seven specialists, routing weights, builder vocabulary
+│   ├── agents.ts            eight specialists, routing weights, builder vocabulary
 │   ├── strategies.ts        saved strategies and their caveats
 │   ├── brokers.ts           broker adapters, capability matrices, order log
-│   └── portfolio.ts         holdings, risk findings, scope-aware stress replay
+│   ├── portfolio.ts         holdings, risk findings, scope-aware stress replay
+│   └── standing.ts          standing agents: the plain-English parser, crew derivation,
+│                            threshold evaluation, seeded roster
 ├── components/
 │   ├── PriceChart.tsx       candlestick + area chart, crosshair, overlays, volume
 │   ├── EquityCurve.tsx      equity curve with benchmark and underwater band
@@ -201,6 +208,11 @@ The seams are deliberate:
   would go, and `SEED_STATUS` is where live connection state would come from instead.
 - **Agents** — `makeSpec()` in `src/agents/panels.tsx` is a deterministic stand-in for a
   model call. It returns the shape a real response should take, including the ambiguity list.
+- **Standing agents** — `composeJob()` in `src/data/standing.ts` is the keyword parser a real
+  model call would replace; it already returns the phrases that fired and the list of things the
+  sentence did not say, which is the shape a model response should also take. `runOnce()` is the
+  scheduler's body: it evaluates an agent against `quoteFor()` and `holdingRows()` and is written
+  so a report can only cite a threshold that agent actually holds.
 - **Holdings** — `holdingRows(scope)` derives everything from `HOLDINGS`; point that at broker
   holdings and the summary, allocation ring, risk table and stress replay all follow. Every
   figure on the Accounts module is computed from it, so a per-broker view can never disagree
@@ -211,7 +223,10 @@ The seams are deliberate:
 ## Not built yet
 
 Options chain and payoff builder, screener execution, live tick streaming, order placement
-confirmation flow, alerts, and anything resembling authentication.
+confirmation flow, and anything resembling authentication. Standing agents are composed and
+evaluated for real against the same data the rest of the app uses, but nothing schedules them:
+there is no live feed, so an as-it-happens watch is created and then evaluated on demand with
+**Run now**. The agent says so in its own limits rather than implying otherwise.
 
 ---
 

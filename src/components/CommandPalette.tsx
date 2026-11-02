@@ -7,7 +7,7 @@ import s from './CommandPalette.module.css';
 
 export type Command = {
   id: string;
-  group: 'Modules' | 'Symbols' | 'Agents' | 'Strategies' | 'Brokers' | 'Settings';
+  group: 'Modules' | 'Symbols' | 'Your agents' | 'Specialists' | 'Strategies' | 'Brokers' | 'Settings';
   label: string;
   hint?: string;
   run: () => void;
@@ -27,6 +27,9 @@ export function buildCommands(opts: {
   openAgent: (id: string) => void;
   openStrategy: (id: string) => void;
   openAccount: (id: string) => void;
+  /** The customer's own standing agents, which are state rather than data. */
+  standing: { id: string; name: string; status: string }[];
+  openStanding: (id: string) => void;
   toggleTheme: () => void;
 }): Command[] {
   const modules = [
@@ -34,6 +37,7 @@ export function buildCommands(opts: {
     { id: 'markets', label: 'Markets' },
     { id: 'strategies', label: 'Strategies' },
     { id: 'accounts', label: 'Accounts' },
+    { id: 'agents', label: 'Agents' },
   ];
   return [
     ...modules.map((m) => ({
@@ -50,9 +54,16 @@ export function buildCommands(opts: {
       hint: i.name,
       run: () => opts.openSymbol(i.symbol),
     })),
+    ...opts.standing.map((a) => ({
+      id: `standing-${a.id}`,
+      group: 'Your agents' as const,
+      label: a.name,
+      hint: a.status,
+      run: () => opts.openStanding(a.id),
+    })),
     ...AGENTS.map((a) => ({
       id: `agent-${a.id}`,
-      group: 'Agents' as const,
+      group: 'Specialists' as const,
       label: a.name,
       hint: a.discipline,
       run: () => opts.openAgent(a.id),

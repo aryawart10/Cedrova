@@ -7,18 +7,22 @@ import type { BuildEntry } from './tabs/AskTab';
 import { MarketsTab } from './tabs/MarketsTab';
 import { StrategiesTab } from './tabs/StrategiesTab';
 import { AccountsTab } from './tabs/AccountsTab';
+import { AgentsTab } from './tabs/AgentsTab';
+import { SEED_AGENTS } from './data/standing';
+import type { StandingAgent } from './data/standing';
 import { BROKERS } from './data/brokers';
 import { marketSession, timeLabel } from './lib/format';
 import type { AgentId } from './data/agents';
 import s from './App.module.css';
 
-export type ModuleId = 'build' | 'markets' | 'strategies' | 'accounts';
+export type ModuleId = 'build' | 'markets' | 'strategies' | 'accounts' | 'agents';
 
 const MODULES: { id: ModuleId; label: string; no: string }[] = [
   { id: 'build', label: 'Build', no: '00' },
   { id: 'markets', label: 'Markets', no: '01' },
   { id: 'strategies', label: 'Strategies', no: '02' },
   { id: 'accounts', label: 'Accounts', no: '03' },
+  { id: 'agents', label: 'Agents', no: '04' },
 ];
 
 type Theme = 'paper' | 'ink';
@@ -32,6 +36,11 @@ export default function App() {
   const [buildEntry, setBuildEntry] = useState<BuildEntry | null>(null);
   const [focusStrategy, setFocusStrategy] = useState<string | null>(null);
   const [focusAccount, setFocusAccount] = useState<string | null>(null);
+  /* Standing agents live here, not in the tab, so the status bar can count
+     them and a created agent survives switching modules. */
+  const [agents, setAgents] = useState<StandingAgent[]>(SEED_AGENTS);
+  const [agentSeed, setAgentSeed] = useState<string | null>(null);
+  const [focusAgent, setFocusAgent] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [clock, setClock] = useState(() => new Date());
 
@@ -83,13 +92,19 @@ export default function App() {
           setFocusAccount(id);
           goModule('accounts');
         },
+        standing: agents,
+        openStanding: (id) => {
+          setFocusAgent(id);
+          goModule('agents');
+        },
         toggleTheme,
       }),
-    [goModule, toggleTheme],
+    [goModule, toggleTheme, agents],
   );
 
   const session = marketSession(clock);
   const connected = BROKERS.filter((b) => b.status === 'connected').length;
+  const liveAgents = agents.filter((a) => a.status === 'live').length;
   const needsAttention = BROKERS.filter((b) => b.status === 'needs-reauth').length;
 
   return (
@@ -142,6 +157,10 @@ export default function App() {
             entry={buildEntry}
             onEntryConsumed={() => setBuildEntry(null)}
             onGoStrategies={() => goModule('strategies')}
+            onGoAgents={(prompt) => {
+              setAgentSeed(prompt);
+              goModule('agents');
+            }}
           />
         )}
         {module === 'markets' && (
@@ -169,6 +188,20 @@ export default function App() {
             onGoAccounts={() => goModule('accounts')}
           />
         )}
+        {module === 'agents' && (
+          <AgentsTab
+            agents={agents}
+            onAgents={setAgents}
+            seed={agentSeed}
+            onSeedConsumed={() => setAgentSeed(null)}
+            focus={focusAgent}
+            onFocusConsumed={() => setFocusAgent(null)}
+            onGoBuild={(id) => {
+              setBuildEntry({ kind: 'brief', agent: id });
+              goModule('build');
+            }}
+          />
+        )}
         {module === 'accounts' && (
           <AccountsTab
             focus={focusAccount}
@@ -194,7 +227,10 @@ export default function App() {
         </span>
         <span className={s.spacer} />
         <span className={s.statusGroup}>
-          <span className={s.statusDim}>Agents</span> 3 idle &middot; 1 running
+          <span className={s.statusDim}>Agents</span> {liveAgents} live
+          {agents.length - liveAgents > 0 && (
+            <span className={s.statusDim}>&middot; {agents.length - liveAgents} paused</span>
+          )}
         </span>
         <span className={s.statusGroup}>
           <span className={s.statusDim}>Brokers</span> {connected} connected

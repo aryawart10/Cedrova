@@ -10,6 +10,8 @@ import { Sparkline } from '../components/Sparkline';
 import { Button, Tag } from '../components/ui';
 import { compactINR, money, pct } from '../lib/format';
 import { quoteFor } from '../data/market';
+import { composeJob, CADENCE_LABEL, TRIGGER_LABEL } from '../data/standing';
+import { agentById } from '../data/agents';
 import s from './answers.module.css';
 
 /* ── Signal check ──────────────────────────────────────────── */
@@ -236,6 +238,60 @@ export function ResearchAnswer({ symbol }: { symbol: string }) {
           <span className={s.caveatTag}>Note</span>
           {RESEARCH_BRIEF.note}
         </p>
+      </section>
+    </div>
+  );
+}
+
+/* ── Standing watch ────────────────────────────────────────── */
+
+/* A watch is not a question with an answer, so this surface refuses to
+   fake one. It shows the job it read out of the sentence and hands the
+   customer to module 04 to name it and switch it on. */
+export function MonitorAnswer({ prompt, onCompose }: { prompt: string; onCompose: () => void }) {
+  const draft = composeJob(prompt);
+  return (
+    <div className={s.answer}>
+      <section className={s.block}>
+        <h3 className={`u-display ${s.lead}`}>That is a standing job, not a one-off answer</h3>
+        <p className={s.leadSub}>
+          Answering it once would be useless by tomorrow. It needs an agent that keeps running, so here is the job as I
+          read it. Nothing is switched on until you name it.
+        </p>
+
+        <ul className={s.kvList}>
+          <li className={s.kvRow}>
+            <span className={s.kvLabel}>Watching</span>
+            <span className={`u-num ${s.kvValue}`}>{draft.watch.join(', ')}</span>
+          </li>
+          <li className={s.kvRow}>
+            <span className={s.kvLabel}>Counts as a change</span>
+            <span className={s.kvValue}>{draft.triggers.map((t) => TRIGGER_LABEL[t.kind]).join(', ')}</span>
+          </li>
+          <li className={s.kvRow}>
+            <span className={s.kvLabel}>Reports</span>
+            <span className={s.kvValue}>{CADENCE_LABEL[draft.cadence]}</span>
+          </li>
+          <li className={s.kvRow}>
+            <span className={s.kvLabel}>Specialists wrapped</span>
+            <span className={s.kvValue}>{draft.crew.map((c) => agentById(c.agent).name).join(' \u2192 ')}</span>
+          </li>
+        </ul>
+
+        {draft.unresolved.length > 0 && (
+          <p className={s.caveat}>
+            <span className={s.caveatTag}>Unresolved</span>
+            {draft.unresolved[0]}
+          </p>
+        )}
+
+        <p className={s.leadSub}>
+          The watch itself is thin on purpose. It only decides <em>when</em> to wake someone; the reading of what a move
+          means still comes from the {draft.crew.length - 1 === 1 ? 'specialist' : `${draft.crew.length - 1} specialists`}{' '}
+          above.
+        </p>
+
+        <Button onClick={onCompose}>Name it and switch it on</Button>
       </section>
     </div>
   );

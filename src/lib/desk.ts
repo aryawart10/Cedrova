@@ -23,6 +23,7 @@ export const AGENT_SCOPE: Record<AgentId, IntentId[]> = {
   'risk-audit': ['tradeable', 'hedge'],
   'macro-news': ['market-view', 'why-fell'],
   screener: ['research'],
+  monitor: ['monitor', 'why-fell'],
 };
 
 export const INTENT_OWNER: Record<IntentId, AgentId> = {
@@ -35,6 +36,7 @@ export const INTENT_OWNER: Record<IntentId, AgentId> = {
   'place-orders': 'strategy-maker',
   research: 'equity-research',
   backtest: 'backtest',
+  monitor: 'monitor',
 };
 
 /** Will this agent take this request, or does it belong elsewhere? */

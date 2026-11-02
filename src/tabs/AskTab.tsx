@@ -7,6 +7,7 @@ import { StrategyAnswer } from '../answers/StrategyAnswer';
 import { ClarifyStep, IdeaStep, MarketViewAnswer } from '../answers/Flow';
 import {
   HedgeAnswer,
+  MonitorAnswer,
   NewsAnswer,
   OrderAnswer,
   ResearchAnswer,
@@ -23,7 +24,7 @@ import s from './AskTab.module.css';
 /* ──────────────────────────────────────────────────────────────
    The universal prompt bar.
 
-   One input, nine destinations. The bar classifies the prompt and
+   One input, ten destinations. The bar classifies the prompt and
    mounts a purpose-built answer surface rather than returning prose.
    Routing is shown openly on each answer so the demo explains itself.
    ────────────────────────────────────────────────────────────── */
@@ -52,6 +53,13 @@ const SUGGESTIONS: { desk: string; items: string[] }[] = [
       'Can I actually trade this with 10 lakh?',
       'How do I hedge the overnight risk?',
       'Place the orders across my brokers',
+    ],
+  },
+  {
+    desk: 'Monitoring desk',
+    items: [
+      'Monitor Reliance for me and let me know on any changes you see',
+      'Keep an eye on my portfolio and tell me if the risk gets worse',
     ],
   },
 ];
@@ -130,6 +138,8 @@ function intentTrace(match: Match | null): string[] {
       return ['Equity research: reading four quarters', 'Checking valuation against history'];
     case 'backtest':
       return ['Loading 4,082 trading days', 'Applying Indian costs and tax'];
+    case 'monitor':
+      return ['Reading what you want watched', 'Working out what would count as a change'];
   }
 }
 
@@ -137,11 +147,14 @@ export function AskTab({
   entry,
   onEntryConsumed,
   onGoStrategies,
+  onGoAgents,
 }: {
   /** Deep link from the command palette or another module. */
   entry: BuildEntry | null;
   onEntryConsumed: () => void;
   onGoStrategies: () => void;
+  /** A standing watch belongs in module 04; carry the sentence across. */
+  onGoAgents: (prompt: string) => void;
 }) {
   const [draft, setDraft] = useState('');
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -375,7 +388,13 @@ export function AskTab({
                 {t.working ? (
                   <Working steps={deskTrace(t.match, t.agent)} onDone={() => patch(t.id, { working: false })} />
                 ) : (
-                  <Resolved turn={t} patch={patch} onHandoff={handoff} onGoStrategies={onGoStrategies} />
+                  <Resolved
+                    turn={t}
+                    patch={patch}
+                    onHandoff={handoff}
+                    onGoStrategies={onGoStrategies}
+                    onGoAgents={onGoAgents}
+                  />
                 )}
               </article>
             ))}
@@ -404,7 +423,7 @@ export function AskTab({
   );
 }
 
-/* ── Model picker: Auto by default, or one of the seven ──── */
+/* ── Model picker: Auto by default, or one specialist ───── */
 
 function ModelPicker({
   active,
@@ -551,11 +570,13 @@ function Resolved({
   patch,
   onHandoff,
   onGoStrategies,
+  onGoAgents,
 }: {
   turn: Turn;
   patch: (id: number, next: Partial<Turn>) => void;
   onHandoff: (id: number, to: AgentId) => void;
   onGoStrategies: () => void;
+  onGoAgents: (prompt: string) => void;
 }) {
   const intent = turn.match?.id;
   const misrouted = Boolean(turn.agent && intent && !turn.override && !inScope(turn.agent, intent));
@@ -578,7 +599,7 @@ function Resolved({
   return (
     <>
       <RouteNote match={turn.match} agent={turn.agent} override={turn.override} />
-      <AnswerFor turn={turn} patch={patch} onGoStrategies={onGoStrategies} />
+      <AnswerFor turn={turn} patch={patch} onGoStrategies={onGoStrategies} onGoAgents={onGoAgents} />
     </>
   );
 }
@@ -692,10 +713,12 @@ function AnswerFor({
   turn,
   patch,
   onGoStrategies,
+  onGoAgents,
 }: {
   turn: Turn;
   patch: (id: number, next: Partial<Turn>) => void;
   onGoStrategies: () => void;
+  onGoAgents: (prompt: string) => void;
 }) {
   const id = turn.match?.id;
 
@@ -734,18 +757,22 @@ function AnswerFor({
       return <OrderAnswer />;
     case 'research':
       return <ResearchAnswer symbol={turn.symbol ?? 'RELIANCE'} />;
+    case 'monitor':
+      return <MonitorAnswer prompt={turn.prompt} onCompose={() => onGoAgents(turn.prompt)} />;
     default:
       return <Unmatched />;
   }
 }
 
 function Unmatched() {
-  const examples = useMemo(() => SUGGESTIONS.flatMap((g) => g.items).slice(0, 5), []);
+  /* One per desk rather than the first five overall, so every shape the bar
+     recognises is represented instead of three strategy prompts. */
+  const examples = useMemo(() => SUGGESTIONS.map((g) => g.items[0]), []);
   return (
     <div className={s.unmatched}>
       <p className={s.unmatchedLead}>
-        I could not tell which desk should take that. This prototype routes nine kinds of request. Try one of these
-        shapes:
+        I could not tell which desk should take that. This prototype routes {Object.keys(INTENT_LABEL).length} kinds of
+        request. Try one of these shapes:
       </p>
       <ul className={s.unmatchedList}>
         {examples.map((e) => (

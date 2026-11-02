@@ -16,7 +16,8 @@ export type IntentId =
   | 'hedge'
   | 'place-orders'
   | 'research'
-  | 'backtest';
+  | 'backtest'
+  | 'monitor';
 
 type Rule = {
   id: IntentId;
@@ -137,6 +138,24 @@ const RULES: Rule[] = [
     weak: ['research', 'company', 'fundamentals', 'valuation', 'moat', 'margins', 'roe', 'good buy'],
   },
   {
+    id: 'monitor',
+    strong: [
+      'monitor',
+      'keep an eye',
+      'keep track',
+      'keep watching',
+      'let me know when',
+      'let me know if',
+      'let me know on',
+      'alert me',
+      'notify me',
+      'tell me when',
+      'standing watch',
+    ],
+    weak: ['watch', 'changes', 'change', 'ongoing', 'every day', 'daily', 'track', 'flag'],
+    veto: ['backtest', 'place the order'],
+  },
+  {
     id: 'backtest',
     strong: ['backtest', 'back test', 'historical performance', 'how would this have done'],
     weak: ['test', 'history', 'since 2010', 'drawdown', 'sharpe'],
@@ -224,6 +243,7 @@ export const INTENT_LABEL: Record<IntentId, string> = {
   'place-orders': 'Order routing',
   research: 'Equity research',
   backtest: 'Backtest engine',
+  monitor: 'Standing watch',
 };
 
 /** Which desk owns each intent. Mirrors the research-team framing. */
@@ -237,4 +257,5 @@ export const INTENT_DESK: Record<IntentId, string> = {
   'place-orders': 'Execution desk',
   research: 'Equity research',
   backtest: 'Quant desk',
+  monitor: 'Monitoring desk',
 };

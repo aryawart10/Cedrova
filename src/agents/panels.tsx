@@ -27,7 +27,7 @@ import s from './panels.module.css';
    surfaces now mount inside module 00:
 
    - BuildStudio  structured rule compiler (the form, not the bar)
-   - Specialists  the seven-card gallery
+   - Specialists  the gallery of every specialist in AGENTS
    - AgentDetail  one agent's full brief, with its canned console
    - Matcher      three questions, then a ranked recommendation
    ──────────────────────────────────────────── */

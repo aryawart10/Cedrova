@@ -7,6 +7,7 @@ import { classify, extractAmount, extractSymbol, INTENT_LABEL } from '../src/lib
 import type { IntentId } from '../src/lib/intent';
 import { AGENT_SCOPE, INTENT_OWNER, inScope } from '../src/lib/desk';
 import { AGENTS } from '../src/data/agents';
+import { composeJob, crewFor, triggersFor } from '../src/data/standing';
 
 /* 'backtest' and 'strategy-build' intentionally converge on the same
    multi-step surface in AskTab, so either is acceptable where noted. */
@@ -29,6 +30,10 @@ const cases: [string, IntentId | IntentId[]][] = [
   ['Place the orders across my brokers', 'place-orders'],
   ['Research on RELIANCE', 'research'],
   ['Should I buy TCS at this price?', 'research'],
+  ['Monitor Reliance for me and let me know on any changes that you see', 'monitor'],
+  ['keep an eye on my portfolio', 'monitor'],
+  ['alert me if TATAMOTORS files anything', 'monitor'],
+  ['watch for a rating change on INFY and notify me', 'monitor'],
 ];
 
 let pass = 0;
@@ -97,7 +102,52 @@ for (const a of AGENTS) {
   else pass++;
 }
 
-const total = cases.length + shouldBeNull.length + amounts.length + syms.length + deskChecks;
+/* Standing agents. A wrapper that resolves to no symbols, no triggers or
+   no crew is worse than useless: it would sit there reporting nothing. */
+const jobs: [string, { watch: string[]; crew: string[] }][] = [
+  [
+    'Monitor Reliance for me and let me know on any changes that you see',
+    { watch: ['RELIANCE'], crew: ['monitor', 'equity-research', 'macro-news'] },
+  ],
+  [
+    'Keep an eye on my portfolio and tell me if the risk gets worse',
+    { watch: ['Portfolio'], crew: ['monitor', 'macro-news', 'risk-audit'] },
+  ],
+  [
+    'Watch for any filing from Tata Motors and flag it the same day',
+    { watch: ['TATAMOTORS'], crew: ['monitor', 'equity-research'] },
+  ],
+];
+let jobChecks = 0;
+for (const [prompt, want] of jobs) {
+  jobChecks += 4;
+  const d = composeJob(prompt);
+  const watch = d.watch.join(',');
+  if (watch === want.watch.join(',')) pass++;
+  else fails.push(`  job: watch want ${want.watch.join(',')}, got ${watch} \u2014 "${prompt}"`);
+
+  const crew = d.crew.map((c) => c.agent).join(',');
+  if (crew === want.crew.join(',')) pass++;
+  else fails.push(`  job: crew want ${want.crew.join(',')}, got ${crew} \u2014 "${prompt}"`);
+
+  // The monitor owns 'when'. If anything else leads, the wrapper is wrong.
+  if (d.crew[0]?.agent === 'monitor') pass++;
+  else fails.push(`  job: monitor is not first in the crew \u2014 "${prompt}"`);
+
+  if (d.triggers.length > 0) pass++;
+  else fails.push(`  job: no triggers, the agent could never fire \u2014 "${prompt}"`);
+}
+
+/* Editing the spec must re-derive, not drift: clearing every trigger has to
+   produce an empty trigger list, and the crew must follow the new kinds. */
+jobChecks += 2;
+if (triggersFor('symbols', ['RELIANCE'], []).length === 0) pass++;
+else fails.push('  job: triggersFor with no kinds still produced a trigger');
+if (crewFor('market', ['news'], 'watch the market').some((c) => c.agent === 'macro-news')) pass++;
+else fails.push('  job: a news trigger did not pull in the macro desk');
+
+const total =
+  cases.length + shouldBeNull.length + amounts.length + syms.length + deskChecks + jobChecks;
 if (fails.length) {
   console.error(`\n${fails.length} of ${total} checks failed:\n${fails.join('\n')}\n`);
   process.exit(1);

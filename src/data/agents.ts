@@ -5,7 +5,8 @@ export type AgentId =
   | 'options'
   | 'risk-audit'
   | 'macro-news'
-  | 'screener';
+  | 'screener'
+  | 'monitor';
 
 export type Agent = {
   id: AgentId;
@@ -217,6 +218,33 @@ export const AGENTS: Agent[] = [
     medianRuntime: '\u2014',
     groundedOn: ['Fundamental database', 'Liquidity history'],
   },
+  {
+    id: 'monitor',
+    name: 'Market Monitor',
+    discipline: 'Surveillance',
+    pitch: 'Watches the one thing you asked about and stays quiet about everything else.',
+    about:
+      'Sits on the tape, the filings feed and the news wire for a named watch list, decides when something has actually crossed a threshold you set, and suppresses the rest. It does not interpret on its own: when something fires it hands the context to whichever specialist owns that kind of question.',
+    status: 'live',
+    no: '08',
+    horizon: 'Continuous',
+    consumes: ['Tick and daily bars', 'Exchange filings feed', 'News wire headlines', 'Your watch list and thresholds'],
+    produces: ['Trigger log', 'Change report with the numbers that fired', 'Handoff to the specialist who can explain it', 'Explicit nothing-happened entries'],
+    skills: [
+      'Thresholds set from a name\u2019s own history, not a round number',
+      'Noise suppression: one report per event instead of one per tick',
+      'Separating a move in the name from a move in its sector',
+      'Saying nothing crossed, out loud, instead of going silent',
+    ],
+    prompts: [
+      'Monitor Reliance for me and let me know on any changes that you see.',
+      'Keep an eye on my portfolio and tell me if concentration gets worse.',
+      'Watch for any filing from Tata Motors and flag it the same day.',
+    ],
+    runsThisWeek: 1_148,
+    medianRuntime: '6s',
+    groundedOn: ['Exchange tick feed', 'NSE/BSE filings feed', 'Per-name volatility history'],
+  },
 ];
 
 export const agentById = (id: AgentId) => AGENTS.find((a) => a.id === id)!;
@@ -251,6 +279,11 @@ export const PICKER: PickerQuestion[] = [
         label: 'What is wrong with my current portfolio',
         detail: 'Holdings exist. The risk in them is unclear.',
         weights: { 'risk-audit': 3, 'macro-news': 1 },
+      },
+      {
+        label: 'Nothing yet \u2014 I want to be told when it changes',
+        detail: 'A standing watch on a name, your book or the market.',
+        weights: { monitor: 3, 'macro-news': 1 },
       },
       {
         label: 'What to even look at',

@@ -1,0 +1,596 @@
+.tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+}
+
+/* ── task box ──────────────────────────────────────────── */
+
+.taskForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.taskInput {
+  width: 100%;
+  resize: vertical;
+  padding: var(--s-4);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--t-lead);
+  line-height: 1.45;
+  transition: border-color var(--dur) var(--ease-out-quart);
+}
+
+.taskInput:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.taskInput::placeholder {
+  color: var(--text-mute);
+}
+
+.taskFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.taskHint {
+  max-width: 44ch;
+  color: var(--text-mute);
+  font-size: var(--t-small);
+}
+
+.examples {
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule-faint);
+}
+
+.exampleList {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--s-2);
+}
+
+.exampleBtn {
+  display: block;
+  width: 100%;
+  padding: var(--s-3) 0;
+  border: 0;
+  border-bottom: 1px solid var(--rule-faint);
+  background: none;
+  color: var(--text-soft);
+  font-family: var(--font-body);
+  font-size: var(--t-body);
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease-out-quart), padding-left var(--dur) var(--ease-out-quart);
+}
+
+.exampleBtn:hover {
+  padding-left: var(--s-2);
+  color: var(--accent);
+}
+
+/* ── the composed spec ─────────────────────────────────── */
+
+.spec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.specBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--rule-faint);
+}
+
+.specBlock:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.watchRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.scopeNote {
+  color: var(--text-mute);
+  font-size: var(--t-small);
+}
+
+.hits {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2);
+  font-size: var(--t-small);
+}
+
+.hitsKey {
+  color: var(--text-mute);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hit {
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.warn {
+  padding: var(--s-3);
+  border-left: 2px solid var(--loss);
+  background: var(--loss-wash);
+  color: var(--text);
+  font-size: var(--t-small);
+}
+
+.trigList {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--rule-faint);
+}
+
+.trigRow {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.4fr) minmax(0, 1fr);
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--rule-faint);
+}
+
+.trigName {
+  font-size: var(--t-small);
+  font-weight: 500;
+}
+
+.trigDetail {
+  color: var(--text-soft);
+  font-size: var(--t-small);
+  line-height: 1.5;
+}
+
+.deliveryNote {
+  color: var(--text-mute);
+  font-size: var(--t-small);
+}
+
+.crewLede {
+  max-width: var(--measure);
+  color: var(--text-soft);
+  font-size: var(--t-small);
+  line-height: 1.55;
+}
+
+.unresolvedList,
+.limitList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  max-width: var(--measure);
+}
+
+.unresolvedList li,
+.limitList li {
+  position: relative;
+  padding-left: var(--s-4);
+  color: var(--text-soft);
+  font-size: var(--t-small);
+  line-height: 1.55;
+}
+
+.unresolvedList li::before,
+.limitList li::before {
+  content: '';
+  position: absolute;
+  top: 0.55em;
+  left: 0;
+  width: 0.45rem;
+  height: 1px;
+  background: var(--rule-strong);
+}
+
+.unresolvedList li {
+  color: var(--text);
+}
+
+/* ── the crew chain ────────────────────────────────────── */
+
+.crew {
+  display: flex;
+  flex-direction: column;
+  counter-reset: crew;
+}
+
+.crewRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--s-3);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--rule-faint);
+}
+
+.crewRow:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.crewNo {
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  line-height: 1.7;
+}
+
+.crewBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.crewName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: var(--t-body);
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease-out-quart);
+}
+
+.crewName:hover {
+  color: var(--accent);
+}
+
+.crewDisc {
+  color: var(--agent);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.crewAsked {
+  max-width: var(--measure);
+  color: var(--text-soft);
+  font-size: var(--t-small);
+  line-height: 1.5;
+}
+
+/* ── naming ────────────────────────────────────────────── */
+
+.nameBlock {
+  gap: var(--s-2);
+}
+
+.nameLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.nameHint {
+  color: var(--text-mute);
+  font-size: var(--t-small);
+}
+
+.nameRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+
+.nameInput {
+  flex: 1 1 14rem;
+  min-width: 0;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: var(--t-lead);
+}
+
+.nameInput:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ── roster ────────────────────────────────────────────── */
+
+.roster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.rosterTitle {
+  font-size: var(--t-h3);
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+
+.cardFocus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-wash);
+}
+
+.cardPaused {
+  background: var(--surface-sunk);
+}
+
+.cardPaused .cardName {
+  color: var(--text-soft);
+}
+
+.cardHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.cardIdent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.cardName {
+  font-size: var(--t-h3);
+}
+
+.cardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.cardBrief {
+  max-width: var(--measure);
+  padding-left: var(--s-4);
+  border-left: 2px solid var(--rule-strong);
+  color: var(--text);
+  font-size: var(--t-body);
+  font-style: italic;
+  line-height: 1.55;
+}
+
+.cardBriefKey {
+  display: block;
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+  font-size: var(--t-eyebrow);
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
+}
+
+.cardMeta li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: var(--t-small);
+}
+
+.metaKey {
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.disclose {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.caret {
+  display: inline-block;
+  transition: transform var(--dur) var(--ease-out-quart);
+}
+
+.caretOpen {
+  transform: rotate(90deg);
+}
+
+.wiring {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.wiring section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+/* ── feed ──────────────────────────────────────────────── */
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule);
+}
+
+.feedHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.feedCount {
+  color: var(--text-mute);
+  font-size: var(--t-small);
+}
+
+.feedEmpty {
+  color: var(--text-soft);
+  font-size: var(--t-small);
+}
+
+.findings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.finding {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding-left: var(--s-4);
+  border-left: 2px solid var(--accent);
+}
+
+.findingQuiet {
+  border-left-color: var(--rule-strong);
+}
+
+.findingTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.findingAt {
+  color: var(--text-mute);
+  font-size: var(--t-micro);
+}
+
+.findingBy {
+  color: var(--agent);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.findingHead {
+  max-width: var(--measure);
+  font-family: var(--font-display);
+  font-size: var(--t-body);
+  line-height: 1.4;
+}
+
+.findingQuiet .findingHead {
+  color: var(--text-soft);
+}
+
+.findingBody {
+  max-width: var(--measure);
+  color: var(--text-soft);
+  font-size: var(--t-small);
+  line-height: 1.55;
+}
+
+.findingAction {
+  max-width: var(--measure);
+  color: var(--text-soft);
+  font-size: var(--t-small);
+  line-height: 1.5;
+}
+
+.findingActionKey {
+  display: block;
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 40rem) {
+  .trigRow,
+  .crewRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-2);
+  }
+
+  .crewNo {
+    display: none;
+  }
+}

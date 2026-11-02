@@ -73,8 +73,13 @@ export type Quote = {
   spark: number[];
 };
 
+/** Universe lookup. Returns undefined rather than guessing, so callers
+ *  decide whether a missing ticker is survivable. */
+export const instrumentFor = (symbol: string): Instrument | undefined =>
+  UNIVERSE.find((i) => i.symbol === symbol);
+
 export function quoteFor(symbol: string): Quote {
-  const found = UNIVERSE.find((i) => i.symbol === symbol);
+  const found = instrumentFor(symbol);
   // Falling back silently means a card labelled with one ticker renders
   // another company's price. Shout about it in dev instead.
   if (!found && import.meta.env.DEV) {
