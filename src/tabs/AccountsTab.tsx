@@ -111,7 +111,7 @@ export function AccountsTab({
         title="Accounts"
         lede={
           <>
-            Every broker you have connected, and the book they add up to, on one screen. alphaOS does
+            Every broker you have connected, and the book they add up to, on one screen. Cedrova does
             not hold your money &mdash; it holds a token, routes orders to the broker you already use,
             and reads back what actually filled. Pick an account to see only that account.
           </>
@@ -698,7 +698,7 @@ function CapabilityList({ broker }: { broker: Broker }) {
       </ul>
       {broker.capabilities.some((c) => !c.supported) && (
         <p className={s.capNote}>
-          Unsupported capabilities are emulated by alphaOS where it is safe to do so, and refused where
+          Unsupported capabilities are emulated by Cedrova where it is safe to do so, and refused where
           it is not. A stop loss that only exists on our side during market hours is refused for
           overnight positions.
         </p>
@@ -761,7 +761,7 @@ function Stepper({ step, done }: { step: number; done: boolean }) {
 }
 
 const TOKEN_FINE =
-  'alphaOS stores only the access token, never your password or TOTP secret. Simulated in this build: no window opens and no request leaves your machine.';
+  'Cedrova stores only the access token, never your password or TOTP secret. Simulated in this build: no window opens and no request leaves your machine.';
 
 /* Connection panel for the account currently in view. */
 function Connection({
@@ -842,7 +842,7 @@ function AddBrokerPanel({
       }
     >
       <p className={s.addLede}>
-        Connect as many accounts as you like. alphaOS treats them as one book for risk, and still lets
+        Connect as many accounts as you like. Cedrova treats them as one book for risk, and still lets
         you look at each one on its own.
       </p>
 
@@ -856,7 +856,7 @@ function AddBrokerPanel({
       {candidates.length === 0 ? (
         <Empty
           title="Every adapter is connected"
-          body="All the brokers alphaOS supports are linked to this account. New adapters appear here as they ship."
+          body="All the brokers Cedrova supports are linked to this account. New adapters appear here as they ship."
         />
       ) : (
         <div className={s.addGrid}>

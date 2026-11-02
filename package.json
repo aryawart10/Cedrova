@@ -1,9 +1,9 @@
 {
-  "name": "alphaos",
+  "name": "cedrova",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "alphaOS \u2014 an operating system for trading research. AI agents, broker integrations and market charts for Indian equity markets. Front-end only, mock data.",
+  "description": "Cedrova AI \u2014 an operating system for trading research. AI agents, broker integrations and market charts for Indian equity markets. Front-end only, mock data.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

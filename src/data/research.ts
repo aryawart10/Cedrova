@@ -434,5 +434,5 @@ export const RESEARCH_BRIEF = {
     },
   ],
   note:
-    'This is an illustrative brief on hardcoded fundamentals. It is not a recommendation, and alphaOS is not a registered research analyst.',
+    'This is an illustrative brief on hardcoded fundamentals. It is not a recommendation, and Cedrova is not a registered research analyst.',
 };

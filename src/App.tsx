@@ -29,7 +29,7 @@ type Theme = 'paper' | 'ink';
 
 export default function App() {
   const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem('alphaos:theme') as Theme) ?? 'paper',
+    () => (localStorage.getItem('cedrova:theme') as Theme) ?? 'paper',
   );
   const [module, setModule] = useState<ModuleId>('build');
   const [symbol, setSymbol] = useState('RELIANCE');
@@ -46,7 +46,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem('alphaos:theme', theme);
+    localStorage.setItem('cedrova:theme', theme);
   }, [theme]);
 
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function App() {
     <div className={s.app}>
       <header className={s.header}>
         <div className={s.headerInner}>
-          <button className={s.brandBtn} onClick={() => goModule('build')} aria-label="alphaOS home">
+          <button className={s.brandBtn} onClick={() => goModule('build')} aria-label="Cedrova AI home">
             <Brand />
           </button>
 

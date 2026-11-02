@@ -1,4 +1,4 @@
-# alphaOS
+# Cedrova AI
 
 An operating system for trading research on Indian equity markets: market charts, AI
 agents that build and validate strategies, and broker integrations, in one desk.

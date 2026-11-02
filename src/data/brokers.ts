@@ -35,7 +35,7 @@ export const BROKERS: Broker[] = [
     ],
     clients: 'ZD4821',
     lastSync: '2 min ago',
-    note: 'Request token expires every morning at 07:30 IST. alphaOS prompts you once a day.',
+    note: 'Request token expires every morning at 07:30 IST. Cedrova prompts you once a day.',
     charges: '\u20B920 per executed order, intraday and F&O',
   },
   {
@@ -56,7 +56,7 @@ export const BROKERS: Broker[] = [
     ],
     clients: 'GW99137',
     lastSync: '11 min ago',
-    note: 'No GTT endpoint, so stop losses on this account are managed by alphaOS during market hours only.',
+    note: 'No GTT endpoint, so stop losses on this account are managed by Cedrova during market hours only.',
     charges: '\u20B920 or 0.05% per order, whichever is lower',
   },
   {

@@ -1,7 +1,7 @@
 import s from './Brand.module.css';
 
-/** Wordmark is typographic, not an imported asset: serif italic "alpha"
-    locked against a monospace "OS", with a rising tick as the mark. */
+/** Wordmark is typographic, not an imported asset: serif italic "Cedrova"
+    locked against a monospace "AI", with a rising tick as the mark. */
 export function Brand() {
   return (
     <span className={s.brand}>
@@ -11,8 +11,8 @@ export function Brand() {
         <circle cx="16.5" cy="5" r="1.8" fill="var(--accent)" />
       </svg>
       <span className={s.word}>
-        <span className={s.alpha}>alpha</span>
-        <span className={s.os}>OS</span>
+        <span className={s.cedrova}>Cedrova</span>
+        <span className={s.ai}>AI</span>
       </span>
     </span>
   );

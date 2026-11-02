@@ -84,7 +84,7 @@ export function quoteFor(symbol: string): Quote {
   // another company's price. Shout about it in dev instead.
   if (!found && import.meta.env.DEV) {
     console.warn(
-      `[alphaOS] quoteFor('${symbol}'): not in UNIVERSE, falling back to ${UNIVERSE[0].symbol}.`,
+      `[cedrova] quoteFor('${symbol}'): not in UNIVERSE, falling back to ${UNIVERSE[0].symbol}.`,
     );
   }
   const inst = found ?? UNIVERSE[0];

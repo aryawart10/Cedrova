@@ -5,7 +5,7 @@ export type StrategyStatus = 'live' | 'paper' | 'draft' | 'retired';
 export type Strategy = {
   id: string;
   name: string;
-  author: 'you' | 'alphaOS' | string;
+  author: 'you' | 'Cedrova' | string;
   thesis: string;
   universe: string;
   signal: string;
@@ -75,14 +75,14 @@ export const STRATEGIES: Strategy[] = [
   {
     id: 'str-trend-overlay',
     name: 'Index Trend Overlay',
-    author: 'alphaOS',
+    author: 'Cedrova',
     thesis:
       'Hold the broad market only while it is above its 200-day average. The point is not extra return, it is cutting the left tail.',
     universe: 'NIFTY 50 ETF',
     signal: 'Price > 200 DMA, 2-day confirmation',
     rebalance: 'Weekly',
     status: 'live',
-    createdBy: 'alphaOS template library',
+    createdBy: 'Cedrova template library',
     deployedOn: 'Groww',
     capital: 12_00_000,
     cagr: 0.138,
