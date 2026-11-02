@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AGENTS } from '../data/agents';
 import { STRATEGIES } from '../data/strategies';
 import { UNIVERSE } from '../data/market';
-import { BROKERS } from '../data/brokers';
+import { BROKERS, type BrokerStatus } from '../data/brokers';
 import s from './CommandPalette.module.css';
 
 export type Command = {
@@ -19,19 +19,21 @@ type Props = {
   commands: Command[];
 };
 
+const linkedStatus = (st: BrokerStatus) => st === 'connected' || st === 'needs-reauth';
+
 export function buildCommands(opts: {
   goModule: (id: string) => void;
   openSymbol: (sym: string) => void;
   openAgent: (id: string) => void;
   openStrategy: (id: string) => void;
+  openAccount: (id: string) => void;
   toggleTheme: () => void;
 }): Command[] {
   const modules = [
     { id: 'build', label: 'Build' },
     { id: 'markets', label: 'Markets' },
     { id: 'strategies', label: 'Strategies' },
-    { id: 'brokers', label: 'Brokers' },
-    { id: 'portfolio', label: 'Portfolio' },
+    { id: 'accounts', label: 'Accounts' },
   ];
   return [
     ...modules.map((m) => ({
@@ -65,9 +67,9 @@ export function buildCommands(opts: {
     ...BROKERS.map((b) => ({
       id: `brk-${b.id}`,
       group: 'Brokers' as const,
-      label: b.name,
+      label: linkedStatus(b.status) ? `View ${b.name} account` : `Connect ${b.name}`,
       hint: b.legal,
-      run: () => opts.goModule('brokers'),
+      run: () => opts.openAccount(b.id),
     })),
     {
       id: 'theme',

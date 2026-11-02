@@ -9,12 +9,12 @@ type Props = {
   focus: string | null;
   onFocus: (id: string | null) => void;
   onGoBuild: () => void;
-  onGoBrokers: () => void;
+  onGoAccounts: () => void;
 };
 
 type Filter = 'all' | 'live' | 'paper' | 'draft' | 'retired';
 
-export function StrategiesTab({ focus, onFocus, onGoBuild, onGoBrokers }: Props) {
+export function StrategiesTab({ focus, onFocus, onGoBuild, onGoAccounts }: Props) {
   const [filter, setFilter] = useState<Filter>('all');
   const shown = filter === 'all' ? STRATEGIES : STRATEGIES.filter((x) => x.status === filter);
   const selected = focus ? STRATEGIES.find((x) => x.id === focus) : null;
@@ -55,7 +55,7 @@ export function StrategiesTab({ focus, onFocus, onGoBuild, onGoBrokers }: Props)
       />
 
       {selected ? (
-        <Detail strategy={selected} onBack={() => onFocus(null)} onGoBrokers={onGoBrokers} />
+        <Detail strategy={selected} onBack={() => onFocus(null)} onGoAccounts={onGoAccounts} />
       ) : (
         <>
           <div className={s.list}>
@@ -148,11 +148,11 @@ function StatusTag({ status }: { status: Strategy['status'] }) {
 function Detail({
   strategy,
   onBack,
-  onGoBrokers,
+  onGoAccounts,
 }: {
   strategy: Strategy;
   onBack: () => void;
-  onGoBrokers: () => void;
+  onGoAccounts: () => void;
 }) {
   const m = metricsFor(strategy);
   const years = [
@@ -261,7 +261,7 @@ function Detail({
                 Orders route to <strong>{strategy.deployedOn}</strong> in the first fifteen minutes of
                 the session. Fills, rejections and partial executions appear in the broker order log.
               </p>
-              <Button size="sm" variant="ghost" onClick={onGoBrokers}>
+              <Button size="sm" variant="ghost" onClick={onGoAccounts}>
                 View order log
               </Button>
             </>
@@ -271,7 +271,7 @@ function Detail({
                 This strategy is not connected to a broker. Paper and draft strategies simulate fills
                 at the next bar&rsquo;s open with a 10 bps haircut.
               </p>
-              <Button size="sm" variant="ghost" onClick={onGoBrokers}>
+              <Button size="sm" variant="ghost" onClick={onGoAccounts}>
                 Connect a broker
               </Button>
             </>

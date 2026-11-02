@@ -123,18 +123,17 @@ Requires Node 18 or newer.
 
 ---
 
-## The five modules
+## The four modules
 
 | # | Module | What is in it |
 | --- | --- | --- |
 | 00 | **Build** | The universal prompt bar. Classifies a plain-English request into one of nine intents and mounts a purpose-built answer surface. Runs on Auto or as one of seven specialist models, and holds the specialist gallery, briefs, matcher and rule builder. Detailed above. |
 | 01 | **Markets** | 16 NSE instruments with daily and weekly history. Line and candlestick charts with 20/50 DMA overlays, volume, hover OHLC crosshair. Watchlist, sector heat, movers, and a morning desk note feed. |
 | 02 | **Strategies** | Saved strategies with equity curves, calendar returns, drawdown profile, and the backtester's caveats attached to every one of them. |
-| 03 | **Brokers** | Zerodha, Groww, Upstox, Angel One, Dhan, Fyers and ICICI Direct adapters. Per-broker capability matrix (including what each one *cannot* do), a simulated connection stepper, and an order log. |
-| 04 | **Portfolio** | Holdings across all connected accounts treated as one book. Sector allocation ring, risk findings from the auditor agent, and a stress replay of five historical drawdowns over today's weights. |
+| 03 | **Accounts** | Brokers and holdings in one place. A rail across the top switches the whole page between all accounts and any single broker; everything below &mdash; summary, allocation ring, risk findings, holdings table, stress replay and order log &mdash; is recomputed for that scope. Scoped to one broker it also shows that adapter's connection state and capability matrix, including what it *cannot* do. **Add broker** connects as many of the seven adapters as you want, with a simulated OAuth stepper. |
 
 Press <kbd>⌘K</kbd> (or <kbd>Ctrl</kbd>+<kbd>K</kbd>) anywhere for the command palette:
-jump to a module, symbol, agent, strategy or broker.
+jump to a module, symbol, agent or strategy, or open one broker's account directly.
 
 ---
 
@@ -173,7 +172,7 @@ src/
 │   ├── agents.ts            seven specialists, routing weights, builder vocabulary
 │   ├── strategies.ts        saved strategies and their caveats
 │   ├── brokers.ts           broker adapters, capability matrices, order log
-│   └── portfolio.ts         holdings, risk findings, stress scenarios
+│   └── portfolio.ts         holdings, risk findings, scope-aware stress replay
 ├── components/
 │   ├── PriceChart.tsx       candlestick + area chart, crosshair, overlays, volume
 │   ├── EquityCurve.tsx      equity curve with benchmark and underwater band
@@ -198,11 +197,14 @@ The seams are deliberate:
 - **Quotes and history** — replace `seriesFor()` and `quoteFor()` in `src/data/market.ts`.
   Everything downstream consumes the `Candle` and `Quote` types, so nothing else changes.
 - **Brokers** — `src/data/brokers.ts` already describes each adapter's real auth model and
-  capability gaps. `BrokerDetail`'s `connect()` is where an OAuth redirect would go.
+  capability gaps. `useConnect()` in `src/tabs/AccountsTab.tsx` is where an OAuth redirect
+  would go, and `SEED_STATUS` is where live connection state would come from instead.
 - **Agents** — `makeSpec()` in `src/agents/panels.tsx` is a deterministic stand-in for a
   model call. It returns the shape a real response should take, including the ambiguity list.
-- **Portfolio** — `holdingRows()` derives everything from `HOLDINGS`; point that at broker
-  holdings and the summary, allocation ring and risk table follow.
+- **Holdings** — `holdingRows(scope)` derives everything from `HOLDINGS`; point that at broker
+  holdings and the summary, allocation ring, risk table and stress replay all follow. Every
+  figure on the Accounts module is computed from it, so a per-broker view can never disagree
+  with the all-accounts view.
 
 ---
 

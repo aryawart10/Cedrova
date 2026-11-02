@@ -12,8 +12,6 @@ export type Broker = {
   capabilities: { label: string; supported: boolean }[];
   clients?: string;
   lastSync?: string;
-  holdingsValue?: number;
-  positions?: number;
   note: string;
   charges: string;
 };
@@ -37,8 +35,6 @@ export const BROKERS: Broker[] = [
     ],
     clients: 'ZD4821',
     lastSync: '2 min ago',
-    holdingsValue: 18_42_650,
-    positions: 6,
     note: 'Request token expires every morning at 07:30 IST. alphaOS prompts you once a day.',
     charges: '\u20B920 per executed order, intraday and F&O',
   },
@@ -60,8 +56,6 @@ export const BROKERS: Broker[] = [
     ],
     clients: 'GW99137',
     lastSync: '11 min ago',
-    holdingsValue: 6_18_400,
-    positions: 2,
     note: 'No GTT endpoint, so stop losses on this account are managed by alphaOS during market hours only.',
     charges: '\u20B920 or 0.05% per order, whichever is lower',
   },
@@ -83,8 +77,6 @@ export const BROKERS: Broker[] = [
     ],
     clients: 'UP20581',
     lastSync: '3 days ago',
-    holdingsValue: 2_96_100,
-    positions: 0,
     note: 'Access token expired. Reconnect to resume holdings sync and order routing.',
     charges: '\u20B920 per order, delivery free',
   },
@@ -180,7 +172,7 @@ export type OrderRow = {
   side: 'BUY' | 'SELL';
   qty: number;
   price: number;
-  broker: string;
+  brokerId: string;
   product: 'CNC' | 'MIS' | 'NRML';
   status: 'COMPLETE' | 'OPEN' | 'REJECTED' | 'CANCELLED';
   origin: string;
@@ -188,11 +180,14 @@ export type OrderRow = {
 };
 
 export const ORDER_LOG: OrderRow[] = [
-  { time: '09:16:04', symbol: 'TATAMOTORS', side: 'BUY', qty: 140, price: 954.2, broker: 'Zerodha', product: 'CNC', status: 'COMPLETE', origin: 'Cross-sectional Momentum 100' },
-  { time: '09:16:06', symbol: 'LT', side: 'BUY', qty: 36, price: 3608.5, broker: 'Zerodha', product: 'CNC', status: 'COMPLETE', origin: 'Cross-sectional Momentum 100' },
-  { time: '09:16:09', symbol: 'DMART', side: 'SELL', qty: 28, price: 4190.0, broker: 'Zerodha', product: 'CNC', status: 'COMPLETE', origin: 'Cross-sectional Momentum 100' },
-  { time: '09:21:47', symbol: 'ICICIBANK', side: 'BUY', qty: 210, price: 1246.8, broker: 'Groww', product: 'CNC', status: 'COMPLETE', origin: 'Bank Nifty Mean Reversion (paper)' },
-  { time: '10:04:12', symbol: 'ADANIENT', side: 'BUY', qty: 60, price: 2402.0, broker: 'Upstox', product: 'MIS', status: 'REJECTED', origin: 'Manual', reason: 'Token expired \u2014 reconnect Upstox' },
-  { time: '11:52:30', symbol: 'NIFTYBEES', side: 'BUY', qty: 1_400, price: 282.4, broker: 'Groww', product: 'CNC', status: 'COMPLETE', origin: 'Index Trend Overlay' },
-  { time: '14:28:55', symbol: 'SUNPHARMA', side: 'SELL', qty: 45, price: 1801.6, broker: 'Zerodha', product: 'CNC', status: 'OPEN', origin: 'Portfolio Risk Auditor rebalance' },
+  { time: '09:16:04', symbol: 'TATAMOTORS', side: 'BUY', qty: 140, price: 954.2, brokerId: 'zerodha', product: 'CNC', status: 'COMPLETE', origin: 'Cross-sectional Momentum 100' },
+  { time: '09:16:06', symbol: 'LT', side: 'BUY', qty: 36, price: 3608.5, brokerId: 'zerodha', product: 'CNC', status: 'COMPLETE', origin: 'Cross-sectional Momentum 100' },
+  { time: '09:16:09', symbol: 'DMART', side: 'SELL', qty: 28, price: 4190.0, brokerId: 'zerodha', product: 'CNC', status: 'COMPLETE', origin: 'Cross-sectional Momentum 100' },
+  { time: '09:21:47', symbol: 'ICICIBANK', side: 'BUY', qty: 210, price: 1246.8, brokerId: 'groww', product: 'CNC', status: 'COMPLETE', origin: 'Bank Nifty Mean Reversion (paper)' },
+  { time: '10:04:12', symbol: 'ADANIENT', side: 'BUY', qty: 60, price: 2402.0, brokerId: 'upstox', product: 'MIS', status: 'REJECTED', origin: 'Manual', reason: 'Token expired \u2014 reconnect Upstox' },
+  { time: '11:52:30', symbol: 'NIFTYBEES', side: 'BUY', qty: 1_400, price: 282.4, brokerId: 'groww', product: 'CNC', status: 'COMPLETE', origin: 'Index Trend Overlay' },
+  { time: '14:28:55', symbol: 'SUNPHARMA', side: 'SELL', qty: 45, price: 1801.6, brokerId: 'zerodha', product: 'CNC', status: 'OPEN', origin: 'Portfolio Risk Auditor rebalance' },
 ];
+
+export const brokerById = (id: string) => BROKERS.find((b) => b.id === id);
+export const brokerName = (id: string) => brokerById(id)?.name ?? id;

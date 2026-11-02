@@ -6,21 +6,19 @@ import { AskTab } from './tabs/AskTab';
 import type { BuildEntry } from './tabs/AskTab';
 import { MarketsTab } from './tabs/MarketsTab';
 import { StrategiesTab } from './tabs/StrategiesTab';
-import { BrokersTab } from './tabs/BrokersTab';
-import { PortfolioTab } from './tabs/PortfolioTab';
+import { AccountsTab } from './tabs/AccountsTab';
 import { BROKERS } from './data/brokers';
 import { marketSession, timeLabel } from './lib/format';
 import type { AgentId } from './data/agents';
 import s from './App.module.css';
 
-export type ModuleId = 'build' | 'markets' | 'strategies' | 'brokers' | 'portfolio';
+export type ModuleId = 'build' | 'markets' | 'strategies' | 'accounts';
 
 const MODULES: { id: ModuleId; label: string; no: string }[] = [
   { id: 'build', label: 'Build', no: '00' },
   { id: 'markets', label: 'Markets', no: '01' },
   { id: 'strategies', label: 'Strategies', no: '02' },
-  { id: 'brokers', label: 'Brokers', no: '03' },
-  { id: 'portfolio', label: 'Portfolio', no: '04' },
+  { id: 'accounts', label: 'Accounts', no: '03' },
 ];
 
 type Theme = 'paper' | 'ink';
@@ -33,6 +31,7 @@ export default function App() {
   const [symbol, setSymbol] = useState('RELIANCE');
   const [buildEntry, setBuildEntry] = useState<BuildEntry | null>(null);
   const [focusStrategy, setFocusStrategy] = useState<string | null>(null);
+  const [focusAccount, setFocusAccount] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [clock, setClock] = useState(() => new Date());
 
@@ -79,6 +78,10 @@ export default function App() {
         openStrategy: (id) => {
           setFocusStrategy(id);
           goModule('strategies');
+        },
+        openAccount: (id) => {
+          setFocusAccount(id);
+          goModule('accounts');
         },
         toggleTheme,
       }),
@@ -163,12 +166,13 @@ export default function App() {
               setBuildEntry({ kind: 'studio' });
               goModule('build');
             }}
-            onGoBrokers={() => goModule('brokers')}
+            onGoAccounts={() => goModule('accounts')}
           />
         )}
-        {module === 'brokers' && <BrokersTab />}
-        {module === 'portfolio' && (
-          <PortfolioTab
+        {module === 'accounts' && (
+          <AccountsTab
+            focus={focusAccount}
+            onFocus={setFocusAccount}
             onGoBuild={() => {
               setBuildEntry({ kind: 'model', agent: 'risk-audit' });
               goModule('build');
